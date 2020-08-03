@@ -39,7 +39,7 @@ public class GameDataTilemapPathFinder
                 {
                     nextTile.Visited = true;
                     nextTile.count = visitCounter += 1;
-                    tilemap.DrawTileVisited(nextTile);
+                    //tilemap.DrawTileVisited(nextTile);
                     if (nextTile.Name == endTile.Name)
                     {
                         pathFounded = true;
@@ -82,7 +82,7 @@ public class GameDataTilemapPathFinder
         List<GameDataTile> tempArea = new List<GameDataTile>();
         foreach (GameDataTile nextTile in tempCollection)
         {
-            if (nextTile != null && !nextTile.Visited && !nextTile.Occupied)
+            if (nextTile != null && !nextTile.Visited && !nextTile.Blocked)
             {
                 tempArea.Add(nextTile);
             }

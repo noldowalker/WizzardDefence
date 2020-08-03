@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GameModels;
@@ -10,6 +11,7 @@ public class DummyController : MonoBehaviour
     private DummyAnimationController dummyAnimationController;
     private DummyModel model;
     private Vector3 targetForMoving;
+    public Action<Vector3> onEnemyDestroy;
 
     void Awake()
     {
@@ -23,7 +25,7 @@ public class DummyController : MonoBehaviour
         dummySpriteController = GetComponentInChildren<DummySpriteController>();
         dummyAnimationController = GetComponent<DummyAnimationController>();
 
-        model = new DummyModel(5f);
+        model = new DummyModel(1f);
     }
 
     void Update()
@@ -56,7 +58,8 @@ public class DummyController : MonoBehaviour
     private IEnumerator DeleteThis(float timeToWait)
     {
         yield return new WaitForSeconds(timeToWait);
-        Destroy(gameObject);
+        SendDeathEvent();
+        Destroy(gameObject);        
     }
 
     private void MoveStep()
@@ -66,7 +69,6 @@ public class DummyController : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, targetForMoving, model.getSpeed());
         } else {
             model.state.SetIdle();
-            Debug.Log("End Moving");
         }
         
     }
@@ -80,9 +82,6 @@ public class DummyController : MonoBehaviour
     {
         model.state.SetMoving();
         targetForMoving = new Vector3 (positionTo.x, positionTo.y, transform.position.z);
-        Debug.Log("Move to :" + positionTo);
-        Debug.Log("Current position :" + transform.position);
-        Debug.Log("Start Moving");
     }
 
     public bool isMoving() {
@@ -92,5 +91,14 @@ public class DummyController : MonoBehaviour
     public bool isIdle()
     {
         return model.state.IsIdle();
+    }
+
+    // Активирует всех делегатов подписанных на событие уничтожения противника.
+    private void SendDeathEvent()
+    {
+        if (onEnemyDestroy != null)
+        {
+            onEnemyDestroy(this.gameObject.transform.position);
+        }
     }
 }

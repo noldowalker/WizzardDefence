@@ -14,6 +14,7 @@ public class GameDataTile
     public string Name { get; set; }
 
     public bool Occupied { get; set; }
+    public bool Blocked { get; set; }
     public bool Visited { get; set; }
 
     public GameDataTile CameFrom { get; set; }
@@ -26,4 +27,9 @@ public class GameDataTile
         Visited = false;
         count = 0;
     }
+
+    public bool IsOccupied() { return Occupied; }
+    public bool IsFree() { return !Occupied; }
+    public bool IsBlocked() { return Blocked; }
+    public bool IsNotBlocked() { return !Blocked; }
 }

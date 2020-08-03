@@ -13,6 +13,10 @@ public class BaseGameDataTilemapController : MonoBehaviour
     private Dictionary<string, GameDataTile> tilesData;
     // Список тайлов на которых могут появитсья монстры
     private List<GameDataTile> spawnTiles;
+    // Список непроходимых тайлов
+    private List<GameDataTile> blockedTiles;
+    // Список свободных от меток тайлов
+    private List<GameDataTile> otherTiles;
     // Место куда устремятся монстры
     private GameDataTile doorTile;
     // Минимальное и максимальное значения сетки
@@ -26,7 +30,7 @@ public class BaseGameDataTilemapController : MonoBehaviour
     // место последнего клика (не используется нуно было для отладки)
     private Vector3Int lastSelectedTilePos;
     // тайлы (сами плиточки) которые можно принудительно присваивать ячейкам (нужно было для отладки)
-    public Tile notSelectedTile, selectedTile, tileInGrid;
+    public Tile notSelectedTile, selectedTile, tileInGrid, occupiedTile, blockedTile, monsterGenerationTile;
 
     // Запускается на старте
     void Awake()
@@ -35,7 +39,9 @@ public class BaseGameDataTilemapController : MonoBehaviour
         interfaceTilemap = GetComponent<Tilemap>();
         lastSelectedTilePos = new Vector3Int(100, 100, 100);
         tilesData = new Dictionary<string, GameDataTile>();
+        otherTiles = new List<GameDataTile>();
         spawnTiles = new List<GameDataTile>();
+        blockedTiles = new List<GameDataTile>();
         CreateTileInfo();
         pathFinder = new GameDataTilemapPathFinder(this);
         // HideTilemaps();
@@ -94,6 +100,7 @@ public class BaseGameDataTilemapController : MonoBehaviour
                 currentTileData.Name = "" + position.x + "_" + position.y + "_interface_tile";
                 currentTileData.CenterWorldPlace = interfaceTilemap.GetCellCenterWorld(position);
                 tilesData.Add(currentTileData.Name, currentTileData);
+                
 
                 switch (currentTile.name)
                 {
@@ -101,10 +108,15 @@ public class BaseGameDataTilemapController : MonoBehaviour
                         spawnTiles.Add(currentTileData);
                         currentTileData.Occupied = true;
                         break;
+                    case "tile_bloked":
+                        blockedTiles.Add(currentTileData);
+                        currentTileData.Blocked = true;
+                        break;
                     case "tile_move_to":
                         doorTile = currentTileData;
                         break;
                     default:
+                        otherTiles.Add(currentTileData);
                         break;
                 }
             }
@@ -114,15 +126,21 @@ public class BaseGameDataTilemapController : MonoBehaviour
     // Вспомогательная функция для дебага. Рисует счет алгоритма по клеткам.
     void OnDrawGizmos()
     {
-        if (tilesData != null)
+        /*if (tilesData != null)
             foreach (KeyValuePair<string, GameDataTile> record in tilesData)
             {
                 GameDataTile tile = record.Value;
                 Handles.Label(tile.CenterWorldPlace, tile.count.ToString());
-            }
+            }*/
     }
 
-    // Гетер для списка тайлов.
+    // Гетер для списка тайлов в виде списка.
+    public List<GameDataTile> GetOtherTiles()
+    {
+        return otherTiles;
+    }
+    
+    // Гетер для списка тайлов в виде справочника.
     public Dictionary<string, GameDataTile> GetTilesData()
     {
         return tilesData;
@@ -178,6 +196,12 @@ public class BaseGameDataTilemapController : MonoBehaviour
     }
 
     // Помечает конкретный тайл как занятый.
+    public void MarkTileFree(GameDataTile tile)
+    {
+        tilesData[tile.Name].Occupied = false;
+    }
+
+    // Помечает конкретный тайл как занятый.
     public void DrawTileVisited(GameDataTile tile)
     {
         ChangeTileSprite(tile.LocalPlace, selectedTile);
@@ -224,5 +248,32 @@ public class BaseGameDataTilemapController : MonoBehaviour
         } else {
             return null;
         }
-    }    
+    }
+    
+    // Проходит по списку тайлов и помечает их как незанятые
+    public void MarkTilesAsFree(List<GameDataTile> freeTiles)
+    {
+        foreach (GameDataTile tile in freeTiles)
+        {
+            this.MarkTileFree(tile);
+            this.ChangeTileSprite(tile.LocalPlace, notSelectedTile);
+        }
+    }
+
+    // Проходит по списку тайлов и отмечает их как занятые, 
+    // далее по всем тайлам из списка прочих проставляет что они не занятые.
+    public void MarkTilesAsOccupied(List<GameDataTile> occupiedTiles)
+    {
+        foreach (GameDataTile tile in occupiedTiles)
+        {
+            if (tile.IsFree())
+            {
+                this.MarkTileOccupied(tile);
+                this.ChangeTileSprite(tile.LocalPlace, occupiedTile);
+            }
+        }
+
+        List<GameDataTile> freeTiles = this.GetOtherTiles().Except(occupiedTiles).ToList<GameDataTile>();
+        this.MarkTilesAsFree(freeTiles);
+    }
 }
