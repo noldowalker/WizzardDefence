@@ -15,6 +15,7 @@ public class GameDataTile
 
     public bool Occupied { get; set; }
     public bool Blocked { get; set; }
+    public bool Target { get; set; }
     public bool Visited { get; set; }
 
     public GameDataTile CameFrom { get; set; }
@@ -32,4 +33,6 @@ public class GameDataTile
     public bool IsFree() { return !Occupied; }
     public bool IsBlocked() { return Blocked; }
     public bool IsNotBlocked() { return !Blocked; }
+    public bool IsTarget() { return Target; }
+    public bool IsNotTarget() { return !Target; }
 }

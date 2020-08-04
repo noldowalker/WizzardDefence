@@ -31,6 +31,7 @@ public class EnemiesMainController : MonoBehaviour
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
             enemy.onEnemyDestroy += this.HandleEnemyDeath;
+            enemy.onMoveEnded += this.HandleEnemyWithoutTarget;
         }
     }
 
@@ -59,18 +60,33 @@ public class EnemiesMainController : MonoBehaviour
         List<GameDataTile> path = tilemap.FindPathToEntrance(enemyTileData);
         GameDataTile nextTile = (path != null && path[path.Count - 1] != null) ? path[path.Count - 1] : null;  
 
-        if (nextTile != null && nextTile.IsFree())
+        if (nextTile != null && nextTile.IsFree() && nextTile.IsNotTarget())
         {
+            tilemap.MarkTileAsTarget(nextTile);
             enemy.Move(nextTile.CenterWorldPlace);
         }
     }
 
-    private void HandleEnemyDeath(Vector3 deathPoint)
+    private void HandleEnemyDeath(Vector3 deathPoint, Vector3 targetPoint)
     {
         Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(deathPoint);
         GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
 
         tilemap.MarkTileFree(enemyTileData);
+
+        if (targetPoint != null)
+        {
+            this.HandleEnemyWithoutTarget(targetPoint);
+        }
+        
+    }
+
+    private void HandleEnemyWithoutTarget(Vector3 targetPoint)
+    {
+            Vector3Int targetTilePosition = tilemap.GetTilePositionByWorldCoords(targetPoint);
+            GameDataTile targetTileData = tilemap.GetTileDataByPosition(targetTilePosition);
+
+            tilemap.UnmarkTileAsTarget(targetTileData);
     }
 
 

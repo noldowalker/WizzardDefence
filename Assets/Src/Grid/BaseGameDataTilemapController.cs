@@ -195,10 +195,22 @@ public class BaseGameDataTilemapController : MonoBehaviour
         tilesData[tile.Name].Occupied = true;
     }
 
-    // Помечает конкретный тайл как занятый.
+    // Помечает конкретный тайл как свободный.
     public void MarkTileFree(GameDataTile tile)
     {
         tilesData[tile.Name].Occupied = false;
+    }
+
+    // Помечает конкретный тайл как цель движения.
+    public void MarkTileAsTarget(GameDataTile tile)
+    {
+        tilesData[tile.Name].Target = true;
+    }
+
+    // Убиреат марку цели движения.
+    public void UnmarkTileAsTarget(GameDataTile tile)
+    {
+        tilesData[tile.Name].Target = false;
     }
 
     // Помечает конкретный тайл как занятый.

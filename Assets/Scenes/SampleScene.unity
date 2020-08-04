@@ -3442,7 +3442,7 @@ MonoBehaviour:
   tilemapForClicksClass: {fileID: 496870163}
   defaultPtojectilePrefub: {fileID: 908095290364216642, guid: e9c71c4e4c2dbf6408f553af42fa03be,
     type: 3}
-  shootingSpeed: 100
+  shootingSpeed: 200
 --- !u!114 &1801199322
 MonoBehaviour:
   m_ObjectHideFlags: 0

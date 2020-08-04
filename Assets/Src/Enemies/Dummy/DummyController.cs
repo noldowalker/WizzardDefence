@@ -11,7 +11,8 @@ public class DummyController : MonoBehaviour
     private DummyAnimationController dummyAnimationController;
     private DummyModel model;
     private Vector3 targetForMoving;
-    public Action<Vector3> onEnemyDestroy;
+    public Action<Vector3, Vector3> onEnemyDestroy;
+    public Action<Vector3> onMoveEnded;
 
     void Awake()
     {
@@ -68,6 +69,7 @@ public class DummyController : MonoBehaviour
         {
             transform.position = Vector3.MoveTowards(transform.position, targetForMoving, model.getSpeed());
         } else {
+            SendEndMoveEvent();
             model.state.SetIdle();
         }
         
@@ -98,7 +100,16 @@ public class DummyController : MonoBehaviour
     {
         if (onEnemyDestroy != null)
         {
-            onEnemyDestroy(this.gameObject.transform.position);
+            onEnemyDestroy(this.gameObject.transform.position, this.targetForMoving);
+        }
+    }
+
+    // Активирует всех делегатов подписанных на событие уничтожения противника.
+    private void SendEndMoveEvent()
+    {
+        if (onMoveEnded != null)
+        {
+            onMoveEnded(this.targetForMoving);
         }
     }
 }
