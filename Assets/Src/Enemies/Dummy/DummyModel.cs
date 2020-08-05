@@ -6,7 +6,7 @@ namespace GameModels
     public class DummyModel
     {
         private float hitPoints, maxHitPoints = 5f;
-        private float speed = 0.01f;
+        private float speed = 0.005f;
         public State state;
 
         public DummyModel(float customHitPoints)

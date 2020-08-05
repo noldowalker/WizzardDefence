@@ -11,18 +11,17 @@ public class DummySpriteController : MonoBehaviour
         currentRenderer = GetComponent<Renderer>();
     }
 
-    public void makeRed() {
-        StartCoroutine(changeColorTo(Color.red));
+    public void makeRed(float totalTime = 0.2f) {
+        StartCoroutine(changeColorTo(Color.red, totalTime));
     }
 
-    private IEnumerator changeColorTo(Color color) {
+    private IEnumerator changeColorTo(Color color, float totalTime) {
         currentRenderer.material.color = color;
 
-        float ElapsedTime = 0.0f;
-        float TotalTime = 0.2f;
-        while (ElapsedTime < TotalTime) {
-            ElapsedTime += Time.deltaTime;
-            currentRenderer.material.color = Color.Lerp(color, Color.white, (ElapsedTime / TotalTime));
+        float elapsedTime = 0.0f;
+        while (elapsedTime < totalTime) {
+            elapsedTime += Time.deltaTime;
+            currentRenderer.material.color = Color.Lerp(color, Color.white, (elapsedTime / totalTime));
             yield return null;
         }
     }

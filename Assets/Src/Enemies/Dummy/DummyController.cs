@@ -6,11 +6,22 @@ using GameModels;
 
 public class DummyController : MonoBehaviour
 {
-    private HitRegistrator hitRegitrator;
+    // Ссылки на используемые объекты
+    // Другие части врага
     private DummySpriteController dummySpriteController;
     private DummyAnimationController dummyAnimationController;
     private DummyModel model;
+    private HitRegistrator hitRegitrator;
+    
+    // Текущая цель для движения в виде лобальных координат (если есть)
     private Vector3 targetForMoving;
+
+    // переменные механики шока от попадания
+    private bool isShockedByHit;
+    private float shockTime = 0f;
+    private float shockTimeStep = 0.1f;
+
+    // Делегаты для реакций на события с этим врагом
     public Action<Vector3, Vector3> onEnemyDestroy;
     public Action<Vector3> onMoveEnded;
 
@@ -26,12 +37,13 @@ public class DummyController : MonoBehaviour
         dummySpriteController = GetComponentInChildren<DummySpriteController>();
         dummyAnimationController = GetComponent<DummyAnimationController>();
 
-        model = new DummyModel(1f);
+        model = new DummyModel(4f);
+        isShockedByHit = false;
     }
 
     void Update()
     {
-        if (model.state.IsMoving()) {
+        if (model.state.IsMoving() && !isShockedByHit) {
             MoveStep();
         }
     }
@@ -41,21 +53,40 @@ public class DummyController : MonoBehaviour
             return;
         }
 
-        if (dummySpriteController != null) {
-            dummySpriteController.makeRed();
-        } else {
-            LogController.ShowError(LogController.Errors.NoSpriteControllerInDummy);
-        }
-
+        // Изменение данных модели в связи с попаданием.
         model.inflictDamage(1f);
+        Debug.Log(" HP: " + model.getCurrentHitPoints());
         if (model.getCurrentHitPoints() > 0) {
-            dummyAnimationController.PlayHitedAnimation();
+            // Проигрыш анимации попадания.
+            float animationTime = dummyAnimationController.PlayHitedAnimation(1f);
+            
+            // Закрашивание красным от попадания.
+            if (dummySpriteController != null)
+            {
+                dummySpriteController.makeRed(animationTime);
+            }
+            else
+            {
+                LogController.ShowError(LogController.Errors.NoSpriteControllerInDummy);
+            }
+
+            // Останавливаем действия на время проигрыша анимации попадания.
+            if (!isShockedByHit)
+            {
+                
+                StartCoroutine(HitShock(animationTime));
+            } else {
+                shockTime += animationTime;
+            }
+            
         } else {
             float deathTime = dummyAnimationController.PlayDeathAnimation();
+            this.isShockedByHit = true;
             StartCoroutine(DeleteThis(deathTime));
         }
     }
 
+    // Корутина запускающаяся при удалении.
     private IEnumerator DeleteThis(float timeToWait)
     {
         yield return new WaitForSeconds(timeToWait);
@@ -63,6 +94,22 @@ public class DummyController : MonoBehaviour
         Destroy(gameObject);        
     }
 
+    // Корутина запускающаяся при попадании.
+    private IEnumerator HitShock(float timeToWait)
+    {
+        shockTime += timeToWait;
+        this.isShockedByHit = true;
+
+        while (shockTime > 0) {
+            shockTime -= shockTimeStep;
+            yield return new WaitForSeconds(shockTimeStep);
+        }
+
+        shockTime = 0;
+        this.isShockedByHit = false;
+    }
+
+    // Функция которая делает очередной шажок к текущей цели (клетке), запускается каждое обновление.
     private void MoveStep()
     {
         if (transform.position != targetForMoving)
@@ -75,11 +122,13 @@ public class DummyController : MonoBehaviour
         
     }
 
+    // Выравнивает игровой объект врага по координата
     public void AlignToCoords(Vector3 position)
     {
         gameObject.transform.position = new Vector3(position.x, position.y, gameObject.transform.position.z);
     }
 
+    // Переводит цель в статус двигающейся и задает цель к которой надо идти в мировых координатах.
     public void Move(Vector3 positionTo)
     {
         model.state.SetMoving();
@@ -104,7 +153,7 @@ public class DummyController : MonoBehaviour
         }
     }
 
-    // Активирует всех делегатов подписанных на событие уничтожения противника.
+    // Активирует всех делегатов подписанных на событие окончания движения к заданной цели (как праивло тайл).
     private void SendEndMoveEvent()
     {
         if (onMoveEnded != null)

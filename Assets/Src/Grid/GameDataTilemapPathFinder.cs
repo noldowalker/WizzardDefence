@@ -39,7 +39,6 @@ public class GameDataTilemapPathFinder
                 {
                     nextTile.Visited = true;
                     nextTile.count = visitCounter += 1;
-                    //tilemap.DrawTileVisited(nextTile);
                     if (nextTile.Name == endTile.Name)
                     {
                         pathFounded = true;

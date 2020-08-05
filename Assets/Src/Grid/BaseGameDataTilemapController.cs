@@ -106,7 +106,7 @@ public class BaseGameDataTilemapController : MonoBehaviour
                 {
                     case "tile_monster":
                         spawnTiles.Add(currentTileData);
-                        currentTileData.Occupied = true;
+                        otherTiles.Add(currentTileData);
                         break;
                     case "tile_bloked":
                         blockedTiles.Add(currentTileData);
