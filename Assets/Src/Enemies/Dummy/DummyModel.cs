@@ -9,6 +9,8 @@ namespace GameModels
         private float speed = 0.005f;
         public State state;
 
+
+
         public DummyModel(float customHitPoints)
         {
             if (customHitPoints > 0)

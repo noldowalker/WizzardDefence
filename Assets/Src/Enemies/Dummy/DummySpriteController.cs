@@ -12,10 +12,10 @@ public class DummySpriteController : MonoBehaviour
     }
 
     public void makeRed(float totalTime = 0.2f) {
-        StartCoroutine(changeColorTo(Color.red, totalTime));
+        StartCoroutine(ChangeColorTo(Color.red, totalTime));
     }
 
-    private IEnumerator changeColorTo(Color color, float totalTime) {
+    private IEnumerator ChangeColorTo(Color color, float totalTime) {
         currentRenderer.material.color = color;
 
         float elapsedTime = 0.0f;

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Tilemaps;
+using GridTools.TilemapWithGameData;
 
 public class EnemiesMainController : MonoBehaviour
 {
@@ -43,7 +43,7 @@ public class EnemiesMainController : MonoBehaviour
         {
             occupiedTiles.Add(this.EnemyUpdate(enemy));            
         }
-        tilemap.MarkTilesAsOccupied(occupiedTiles);
+        tilemap.ChangeTilesOccupationAccorgingTileData(occupiedTiles);
     }
 
     private GameDataTile EnemyUpdate(DummyController enemy) {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GameModels;
+using GridTools.TilemapWithGameData;
 
 public class MageMainController : MonoBehaviour
 {

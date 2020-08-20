@@ -5,8 +5,10 @@ using UnityEngine.Tilemaps;
 using UnityEditor;
 using System.Linq;
 
-public class InterfaceTilemapController : BaseGameDataTilemapController
+namespace GridTools.TilemapWithGameData
 {
+    public class InterfaceTilemapController : BaseGameDataTilemapController
+    {
 
+    }
 }
-

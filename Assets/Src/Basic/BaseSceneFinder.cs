@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GridTools.TilemapWithGameData;
 
 public class BaseSceneFinder : MonoBehaviour
 {
