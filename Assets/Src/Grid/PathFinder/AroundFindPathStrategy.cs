@@ -5,7 +5,7 @@ using GridTools.TilemapWithGameData;
 
 namespace GridTools.PathFinding
 {
-    public class ClearFindPathStrategy : IFindPathStrategy
+    public class AroundFindPathStrategy : IFindPathStrategy
     {
         public List<GameDataTile> GetNeigboursForTile(GameDataTile currentTile, GameDataTile endTile, BaseGameDataTilemapController tilemap)
         {
@@ -18,7 +18,7 @@ namespace GridTools.PathFinding
             List<GameDataTile> tempArea = new List<GameDataTile>();
             foreach (GameDataTile nextTile in tempCollection)
             {
-                if (nextTile != null && !nextTile.Visited && !nextTile.Blocked && (!nextTile.Occupied || nextTile == endTile))
+                if (nextTile != null && !nextTile.Visited && !nextTile.Blocked)
                 {
                     tempArea.Add(nextTile);
                 }

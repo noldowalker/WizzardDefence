@@ -28,11 +28,21 @@ public class EnemiesMainController : MonoBehaviour
             return;
         }
 
+        List<GameDataTile> occupiedTiles = new List<GameDataTile>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
             enemy.onEnemyDestroy += this.HandleEnemyDeath;
             enemy.onMoveEnded += this.HandleEnemyWithoutTarget;
+            Vector3 enemyPosition = enemy.gameObject.transform.position;
+            Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
+            GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
+            occupiedTiles.Add(enemyTileData);
         }
+
+        if (occupiedTiles.Count > 0) {
+            tilemap.ChangeTilesOccupationAccorgingTileData(occupiedTiles);
+        }
+        
     }
 
     // Действия которые запускаются каждый кадр
@@ -57,10 +67,9 @@ public class EnemiesMainController : MonoBehaviour
     }
 
     private void IdleUpdate(DummyController enemy, GameDataTile enemyTileData) {
-        List<GameDataTile> path = tilemap.FindPathToEntrance(enemyTileData);
-        GameDataTile nextTile = (path != null && path[path.Count - 1] != null) ? path[path.Count - 1] : null;  
+        GameDataTile nextTile = tilemap.FindPathToEntrance(enemyTileData);
 
-        if (nextTile != null && nextTile.IsFree() && nextTile.IsNotTarget())
+        if (nextTile != null)
         {
             tilemap.MarkTileAsTarget(nextTile);
             enemy.Move(nextTile.CenterWorldPlace);

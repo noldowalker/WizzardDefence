@@ -238,30 +238,39 @@ namespace GridTools.TilemapWithGameData
             }
         }
 
-        // Ищет путь ко входу
-        public List<GameDataTile> FindPathToEntrance(GameDataTile tileFrom)
+        // Ищет путь ко входу 2мя разными способами. Один в обход занятых клеток, второй по кратчайшему без занятых.
+        public GameDataTile FindPathToEntrance(GameDataTile tileFrom)
         {
             if (tilesData.ContainsKey(tileFrom.Name) && doorTile != null)
             {
                 ResetTileCount();
                 ResetTileVisited();
 
-                List<GameDataTile> result = pathFinder.ClearSearchForTile(tileFrom, doorTile);
+                GameDataTile nextTile = checkPathForNexTile(pathFinder.SearchForTile(tileFrom, doorTile));
 
-                if (result != null)
-                {
-                    foreach (GameDataTile record in result)
-                    {
-                        ChangeTileSprite(record.LocalPlace, tileInGrid);
-                    }
-                }
+                if (nextTile != null)
+                    return nextTile;
 
-                return result;
-            }
-            else
-            {
+
+                ResetTileCount();
+                ResetTileVisited();
+
+                nextTile = checkPathForNexTile(pathFinder.AroundSearchForTile(tileFrom, doorTile));
+
+                return nextTile;
+            } else {
                 return null;
             }
+        }
+
+        // Проверяет можно ли двигаться к следующем на полученом пути тайлу, если нет возвращает нулл.
+        private GameDataTile checkPathForNexTile(List<GameDataTile> path) {
+            GameDataTile nextTile = (path != null && path[path.Count - 1] != null) ? path[path.Count - 1] : null;
+
+            if (nextTile != null && nextTile.IsFree() && nextTile.IsNotTarget())
+                return nextTile;
+
+            return null;
         }
 
         // Проходит по списку тайлов и помечает их как незанятые

@@ -7,6 +7,6 @@ namespace GridTools.PathFinding
 {
     public interface IFindPathStrategy
     {
-        List<GameDataTile> GetNeigboursForTile(GameDataTile currentTile, BaseGameDataTilemapController tilemap);
+        List<GameDataTile> GetNeigboursForTile(GameDataTile currentTile, GameDataTile endTile, BaseGameDataTilemapController tilemap);
     }
 }

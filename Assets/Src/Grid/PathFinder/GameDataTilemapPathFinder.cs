@@ -15,7 +15,8 @@ namespace GridTools.PathFinding
         private BaseGameDataTilemapController tilemap;
         private Dictionary<string, IFindPathStrategy> strategies = new Dictionary<string, IFindPathStrategy>
         {
-            {"ClearPathFinding", new ClearFindPathStrategy()}
+            {"ClearPathFinding", new ClearFindPathStrategy()},
+            {"AroundFindPathStrategy", new AroundFindPathStrategy()}
         };
 
         // Входной параметр - тайлмап соответствующего класса, по которому будет происходить поиск.
@@ -24,12 +25,19 @@ namespace GridTools.PathFinding
             tilemap = initTilemap;
         }
 
-        public List<GameDataTile> ClearSearchForTile(GameDataTile startTile, GameDataTile endTile) {
-            return SearchForTile(startTile, endTile, strategies["ClearPathFinding"]);
+        // Поиск стратегией которая будет искать обход вокруг как занятых врагами так и заблокированных клеток.
+        public List<GameDataTile> SearchForTile(GameDataTile startTile, GameDataTile endTile) {
+            return BaseAlhoritm(startTile, endTile, strategies["ClearPathFinding"]);
         }
 
-        //На вход подаются 2 параметра - откуда и до куда искать путь.
-        private List<GameDataTile> SearchForTile(GameDataTile startTile, GameDataTile endTile, IFindPathStrategy currentStrategy)
+        // Поиск стратегией котоаря будет строить путь игнорируя занятые другими противниками клетки.
+        public List<GameDataTile> AroundSearchForTile(GameDataTile startTile, GameDataTile endTile)
+        {
+            return BaseAlhoritm(startTile, endTile, strategies["AroundFindPathStrategy"]); ;
+        }
+
+        //На вход подаются 3 параметра - откуда и до куда искать путь, а так же стратегия поиска.
+        private List<GameDataTile> BaseAlhoritm(GameDataTile startTile, GameDataTile endTile, IFindPathStrategy currentStrategy)
         {
             List<GameDataTile> result = new List<GameDataTile>();
             List<GameDataTile> currentArea = new List<GameDataTile>();
@@ -44,7 +52,7 @@ namespace GridTools.PathFinding
                 List<GameDataTile> nextArea = new List<GameDataTile>();
                 foreach (GameDataTile currentTile in currentArea)
                 {
-                    List<GameDataTile> tempArea = currentStrategy.GetNeigboursForTile(currentTile, tilemap);
+                    List<GameDataTile> tempArea = currentStrategy.GetNeigboursForTile(currentTile, endTile, tilemap);
 
                     foreach (GameDataTile nextTile in tempArea)
                     {
@@ -79,31 +87,6 @@ namespace GridTools.PathFinding
             }
 
             return result;
-        }
-
-        private List<GameDataTile> GetNeigboursForTile(GameDataTile currentTile)
-        {
-            List<GameDataTile> tempCollection = new List<GameDataTile>();
-            tempCollection.Add(tilemap.GetTileDataByXY(currentTile.LocalPlace.x, currentTile.LocalPlace.y + 1));
-            tempCollection.Add(tilemap.GetTileDataByXY(currentTile.LocalPlace.x, currentTile.LocalPlace.y - 1));
-            tempCollection.Add(tilemap.GetTileDataByXY(currentTile.LocalPlace.x + 1, currentTile.LocalPlace.y));
-            tempCollection.Add(tilemap.GetTileDataByXY(currentTile.LocalPlace.x - 1, currentTile.LocalPlace.y));
-
-            List<GameDataTile> tempArea = new List<GameDataTile>();
-            foreach (GameDataTile nextTile in tempCollection)
-            {
-                if (nextTile != null && !nextTile.Visited && !nextTile.Blocked)
-                {
-                    tempArea.Add(nextTile);
-                }
-            }
-
-            foreach (GameDataTile nextTile in tempArea)
-            {
-                nextTile.CameFrom = currentTile;
-            }
-
-            return tempArea;
         }
     }
 }
