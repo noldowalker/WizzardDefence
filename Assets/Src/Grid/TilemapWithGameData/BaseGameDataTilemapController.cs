@@ -27,13 +27,14 @@ namespace GridTools.TilemapWithGameData
         // Экземпляр класса который осуществляет поиск пути по тайлмапу.
         private GameDataTilemapPathFinder pathFinder;
 
-        private int safeIterator = 0;
         // Событие клика по тайлмапу.
         public Action<Vector3> onTileClick;
         // место последнего клика (не используется нуно было для отладки)
         private Vector3Int lastSelectedTilePos;
         // тайлы (сами плиточки) которые можно принудительно присваивать ячейкам (нужно было для отладки)
         public Tile notSelectedTile, selectedTile, tileInGrid, occupiedTile, blockedTile, monsterGenerationTile;
+        // Объект Двери
+        public DoorController door;
 
         // Запускается на старте
         void Awake()
@@ -47,6 +48,9 @@ namespace GridTools.TilemapWithGameData
             blockedTiles = new List<GameDataTile>();
             CreateTileInfo();
             pathFinder = new GameDataTilemapPathFinder(this);
+            if (door != null){
+                door.onDestroy += onDoorDestroyed;
+            }
             // HideTilemaps();
         }
 
@@ -100,7 +104,6 @@ namespace GridTools.TilemapWithGameData
                     currentTileData.Name = "" + position.x + "_" + position.y + "_interface_tile";
                     currentTileData.CenterWorldPlace = interfaceTilemap.GetCellCenterWorld(position);
                     tilesData.Add(currentTileData.Name, currentTileData);
-
 
                     switch (currentTile.name)
                     {
@@ -156,6 +159,11 @@ namespace GridTools.TilemapWithGameData
         public GameDataTile GetDoorTile()
         {
             return doorTile;
+        }
+
+        // Проверяет не является ли переданный тайл тем, рядом с которым дверь.
+        public bool IsDoorTile(GameDataTile tileForCheck) {
+            return tileForCheck == doorTile;
         }
 
         // Получив мировые координаты, вернет позицию тайла.
@@ -298,6 +306,11 @@ namespace GridTools.TilemapWithGameData
 
             List<GameDataTile> freeTiles = this.GetOtherTiles().Except(occupiedTiles).ToList<GameDataTile>();
             this.MarkTilesAsFree(freeTiles);
+        }
+
+        private void onDoorDestroyed()
+        {
+            door = null;
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DummySpriteController : MonoBehaviour
+public class ColorOverlaper : MonoBehaviour
 {
     private Renderer currentRenderer;
 

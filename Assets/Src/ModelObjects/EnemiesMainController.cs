@@ -61,7 +61,18 @@ public class EnemiesMainController : MonoBehaviour
         Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
         GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
 
-        if (enemy.isIdle()) { this.IdleUpdate(enemy, enemyTileData); }
+        if (enemy.isIdle()) {
+            if (tilemap.IsDoorTile(enemyTileData)) {
+                if (tilemap.door != null) {
+                    enemy.Attack(tilemap.door);
+                }
+                else {
+                    //TODO: реакция на проигрыш
+                }
+            } else {
+                this.IdleUpdate(enemy, enemyTileData);
+            }
+        }
 
         return enemyTileData;
     }

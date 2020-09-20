@@ -8,13 +8,14 @@ public class DummyController : MonoBehaviour
 {
     // Ссылки на используемые объекты
     // Другие части врага
-    private DummySpriteController dummySpriteController;
+    private ColorOverlaper colorOverlaper;
     private DummyAnimationController dummyAnimationController;
     private DummyModel model;
     private HitRegistrator hitRegitrator;
     
-    // Текущая цель для движения в виде лобальных координат (если есть)
+    // Текущая цель для движения в виде глобальных координат (если есть)
     private Vector3 targetForMoving;
+    private DoorController targetForAttack;
 
     // переменные механики шока от попадания
     private bool isShockedByHit;
@@ -34,11 +35,13 @@ public class DummyController : MonoBehaviour
             LogController.ShowError(LogController.Errors.NoHitRegistratorInDummy);
         }
 
-        dummySpriteController = GetComponentInChildren<DummySpriteController>();
+        colorOverlaper = GetComponentInChildren<ColorOverlaper>();
         dummyAnimationController = GetComponent<DummyAnimationController>();
 
-        model = new DummyModel(4f);
+        model = new DummyModel(4f, 1f);
         isShockedByHit = false;
+
+        targetForAttack = null;
     }
 
     void Update()
@@ -61,9 +64,9 @@ public class DummyController : MonoBehaviour
             float animationTime = dummyAnimationController.PlayHitedAnimation(1f);
             
             // Закрашивание красным от попадания.
-            if (dummySpriteController != null)
+            if (colorOverlaper != null)
             {
-                dummySpriteController.makeRed(animationTime);
+                colorOverlaper.makeRed(animationTime);
             }
             else
             {
@@ -160,5 +163,30 @@ public class DummyController : MonoBehaviour
         {
             onMoveEnded(this.targetForMoving);
         }
+    }
+
+    public void Attack(DoorController target) {
+        model.state.SetAttacking();
+        targetForAttack = target;
+        target.onDestroy += onDoorDestroy;
+        Debug.Log(model.AtackSpeed);
+        StartCoroutine(Strike(model.AtackSpeed));
+    }
+
+    // Корутина запускающаяся при атаке.
+    private IEnumerator Strike(float timeToWait)
+    {
+        while (targetForAttack != null)
+        {
+            targetForAttack.Hit(model);
+            yield return new WaitForSeconds(timeToWait);
+        }
+
+        model.state.SetIdle();
+    }
+
+    // Срабатывает на событии разрушения текущией цели - убираем цель.
+    private void onDoorDestroy() {
+        targetForAttack = null;
     }
 }

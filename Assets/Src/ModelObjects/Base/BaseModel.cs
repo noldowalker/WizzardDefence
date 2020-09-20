@@ -3,20 +3,29 @@ using System.Collections.Generic;
 
 namespace GameModels
 {
-    public class DummyModel
+    public class BaseModel
     {
-        private float hitPoints, maxHitPoints = 5f;
-        private float speed = 0.01f;
+        protected float hitPoints, maxHitPoints = 5f;
+        protected float speed = 0.03f;
+        private float damage;
+        private float atackSpeed;
+
         public State state;
 
+        public float Damage { get => damage; set => damage = value; }
+        public float AtackSpeed { get => atackSpeed; set => atackSpeed = value; }
 
-
-        public DummyModel(float customHitPoints)
+        public BaseModel(float customHitPoints = 0, float customDamage = 0)
         {
+            
             if (customHitPoints > 0)
             {
                 maxHitPoints = hitPoints = customHitPoints;
             }
+
+            Damage = (customDamage >= 0) ? customDamage  : 0;
+            AtackSpeed = 1;
+
             state = new State();
         }
 
