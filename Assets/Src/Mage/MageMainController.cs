@@ -7,7 +7,7 @@ using GridTools.TilemapWithGameData;
 public class MageMainController : MonoBehaviour
 {
 
-    public InterfaceTilemapController tilemapForClicksClass;
+    public GameFieldController tilemapForClicksClass;
     public GameObject defaultPtojectilePrefub;
     public float shootingSpeed = 10f;
 

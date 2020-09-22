@@ -8,7 +8,7 @@ public class LogController : MonoBehaviour
 
     public enum Errors {
         BaseSceneFinderIsNull,
-        InterfaceTilemapControllerIsNull,
+        GameFieldControllerIsNull,
         NoHitRegistratorInDummy,
         NoSpriteControllerInDummy
     };
@@ -20,7 +20,7 @@ public class LogController : MonoBehaviour
                 case Errors.BaseSceneFinderIsNull:
                     Debug.Log("You forgot add BaseSceneFinder in RootObject");
                     break;
-                case Errors.InterfaceTilemapControllerIsNull:
+                case Errors.GameFieldControllerIsNull:
                     Debug.Log("You forgot add BaseSceneFinder in RootObject");
                     break;
                 case Errors.NoHitRegistratorInDummy:

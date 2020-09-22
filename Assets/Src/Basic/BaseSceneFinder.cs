@@ -12,8 +12,8 @@ public class BaseSceneFinder : MonoBehaviour
         LogController.mute = muteErrors;
     }
 
-    public InterfaceTilemapController GetInterfaceTilemapController()
+    public GameFieldController GetGameFieldController()
     {
-        return GetComponentInChildren<InterfaceTilemapController>();
+        return GetComponentInChildren<GameFieldController>();
     }
 }

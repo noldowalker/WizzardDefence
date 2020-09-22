@@ -8,7 +8,7 @@ using GridTools.TilemapWithGameData;
 public class EnemiesMainController : MonoBehaviour
 {
     protected BaseSceneFinder scene;
-    protected InterfaceTilemapController tilemap;
+    protected GameFieldController tilemap;
     protected LogController log;
  
 
@@ -21,10 +21,10 @@ public class EnemiesMainController : MonoBehaviour
             return;
         }
 
-        tilemap = scene.GetComponentInChildren<InterfaceTilemapController>();
+        tilemap = scene.GetComponentInChildren<GameFieldController>();
         if (tilemap == null)
         {
-            LogController.ShowError(LogController.Errors.InterfaceTilemapControllerIsNull);
+            LogController.ShowError(LogController.Errors.GameFieldControllerIsNull);
             return;
         }
 

@@ -7,7 +7,7 @@ namespace GridTools.PathFinding
 {
     public class AroundFindPathStrategy : IFindPathStrategy
     {
-        public List<GameDataTile> GetNeigboursForTile(GameDataTile currentTile, GameDataTile endTile, BaseGameDataTilemapController tilemap)
+        public List<GameDataTile> GetNeigboursForTile(GameDataTile currentTile, GameDataTile endTile, GameFieldController tilemap)
         {
             List<GameDataTile> tempCollection = new List<GameDataTile>();
             tempCollection.Add(tilemap.GetTileDataByXY(currentTile.LocalPlace.x, currentTile.LocalPlace.y + 1));

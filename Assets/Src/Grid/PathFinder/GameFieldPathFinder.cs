@@ -10,9 +10,9 @@ namespace GridTools.PathFinding
      *  С помощью модифицированного волнового алгоритма. 
      * 
      * */
-    public class GameDataTilemapPathFinder
+    public class GameFieldPathFinder
     {
-        private BaseGameDataTilemapController tilemap;
+        private GameFieldController tilemap;
         private Dictionary<string, IFindPathStrategy> strategies = new Dictionary<string, IFindPathStrategy>
         {
             {"ClearPathFinding", new ClearFindPathStrategy()},
@@ -20,7 +20,7 @@ namespace GridTools.PathFinding
         };
 
         // Входной параметр - тайлмап соответствующего класса, по которому будет происходить поиск.
-        public GameDataTilemapPathFinder(BaseGameDataTilemapController initTilemap)
+        public GameFieldPathFinder(GameFieldController initTilemap)
         {
             tilemap = initTilemap;
         }

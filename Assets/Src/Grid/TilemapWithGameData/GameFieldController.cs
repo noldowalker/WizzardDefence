@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using UnityEditor;
-using System.Linq;
 using GridTools.PathFinding;
+using System.Linq;
 
 namespace GridTools.TilemapWithGameData
 {
-    public class BaseGameDataTilemapController : MonoBehaviour
+    public class GameFieldController : MonoBehaviour
     {
         private Grid grid; // Грид к которому привязан данный тайлмап
         private Tilemap interfaceTilemap; // Сам тайлмап
@@ -25,7 +24,7 @@ namespace GridTools.TilemapWithGameData
         // Минимальное и максимальное значения сетки
         private int minX = 0, minY = 0, maxX = 0, maxY = 0;
         // Экземпляр класса который осуществляет поиск пути по тайлмапу.
-        private GameDataTilemapPathFinder pathFinder;
+        private GameFieldPathFinder pathFinder;
 
         // Событие клика по тайлмапу.
         public Action<Vector3> onTileClick;
@@ -47,8 +46,9 @@ namespace GridTools.TilemapWithGameData
             spawnTiles = new List<GameDataTile>();
             blockedTiles = new List<GameDataTile>();
             CreateTileInfo();
-            pathFinder = new GameDataTilemapPathFinder(this);
-            if (door != null){
+            pathFinder = new GameFieldPathFinder(this);
+            if (door != null)
+            {
                 door.onDestroy += onDoorDestroyed;
             }
             // HideTilemaps();
@@ -126,17 +126,6 @@ namespace GridTools.TilemapWithGameData
             }
         }
 
-        // Вспомогательная функция для дебага. Рисует счет алгоритма по клеткам.
-        void OnDrawGizmos()
-        {
-            /*if (tilesData != null)
-                foreach (KeyValuePair<string, GameDataTile> record in tilesData)
-                {
-                    GameDataTile tile = record.Value;
-                    Handles.Label(tile.CenterWorldPlace, tile.count.ToString());
-                }*/
-        }
-
         // Гетер для списка тайлов в виде списка.
         public List<GameDataTile> GetOtherTiles()
         {
@@ -162,7 +151,8 @@ namespace GridTools.TilemapWithGameData
         }
 
         // Проверяет не является ли переданный тайл тем, рядом с которым дверь.
-        public bool IsDoorTile(GameDataTile tileForCheck) {
+        public bool IsDoorTile(GameDataTile tileForCheck)
+        {
             return tileForCheck == doorTile;
         }
 
@@ -266,13 +256,16 @@ namespace GridTools.TilemapWithGameData
                 nextTile = checkPathForNexTile(pathFinder.AroundSearchForTile(tileFrom, doorTile));
 
                 return nextTile;
-            } else {
+            }
+            else
+            {
                 return null;
             }
         }
 
         // Проверяет можно ли двигаться к следующем на полученом пути тайлу, если нет возвращает нулл.
-        private GameDataTile checkPathForNexTile(List<GameDataTile> path) {
+        private GameDataTile checkPathForNexTile(List<GameDataTile> path)
+        {
             GameDataTile nextTile = (path != null && path[path.Count - 1] != null) ? path[path.Count - 1] : null;
 
             if (nextTile != null && nextTile.IsFree() && nextTile.IsNotTarget())
