@@ -19,6 +19,8 @@ namespace GridTools.TilemapWithGameData
         private List<GameDataTile> blockedTiles;
         // Список свободных от меток тайлов
         private List<GameDataTile> otherTiles;
+        // Список тайлов при занятости которых стена становится прозрачной
+        private List<GameDataTile> transparentDetectionTiles;
         // Место куда устремятся монстры
         private GameDataTile doorTile;
         // Минимальное и максимальное значения сетки
@@ -28,30 +30,37 @@ namespace GridTools.TilemapWithGameData
 
         // Событие клика по тайлмапу.
         public Action<Vector3> onTileClick;
+        // Событие смены статуса прозрачности
+        public Action<bool> onTransparencyChange;
         // место последнего клика (не используется нуно было для отладки)
         private Vector3Int lastSelectedTilePos;
         // тайлы (сами плиточки) которые можно принудительно присваивать ячейкам (нужно было для отладки)
         public Tile notSelectedTile, selectedTile, tileInGrid, occupiedTile, blockedTile, monsterGenerationTile;
         // Объект Двери
         public DoorController door;
+        // Флаг занята ли хоть одна из клеток которые влияют на прозрачность
+        private bool transparency = false;
 
         // Запускается на старте
         void Awake()
         {
             grid = GetComponentInParent<Grid>();
+            door = GetComponentInParent<DoorController>();
             interfaceTilemap = GetComponent<Tilemap>();
             lastSelectedTilePos = new Vector3Int(100, 100, 100);
             tilesData = new Dictionary<string, GameDataTile>();
             otherTiles = new List<GameDataTile>();
             spawnTiles = new List<GameDataTile>();
             blockedTiles = new List<GameDataTile>();
+            transparentDetectionTiles = new List<GameDataTile>();
+
             CreateTileInfo();
             pathFinder = new GameFieldPathFinder(this);
             if (door != null)
             {
                 door.onDestroy += onDoorDestroyed;
             }
-            // HideTilemaps();
+            HideTilemaps();
         }
 
         // Обработчик клика по колайдеру тайлмапа.
@@ -123,6 +132,33 @@ namespace GridTools.TilemapWithGameData
                             break;
                     }
                 }
+            }
+
+            if (doorTile != null) {
+                GetTilesForTransparent();
+            }
+        }
+
+        private void GetTilesForTransparent() {
+            Vector3Int doorCoords = doorTile.LocalPlace;
+            transparentDetectionTiles.Add(doorTile);
+
+            int y = doorTile.LocalPlace.y + 1;
+            GameDataTile currentTile = GetTileDataByPosition(new Vector3Int(doorCoords.x, y, doorCoords.z));
+
+            while (currentTile != null) {
+                transparentDetectionTiles.Add(currentTile);
+                y++;
+                currentTile = GetTileDataByPosition(new Vector3Int(doorCoords.x, y, doorCoords.z));
+            }
+
+            y = doorTile.LocalPlace.y - 1;
+            currentTile = GetTileDataByPosition(new Vector3Int(doorCoords.x, y, doorCoords.z));
+            while (currentTile != null)
+            {
+                transparentDetectionTiles.Add(currentTile);
+                y--;
+                currentTile = GetTileDataByPosition(new Vector3Int(doorCoords.x, y, doorCoords.z));
             }
         }
 
@@ -282,6 +318,7 @@ namespace GridTools.TilemapWithGameData
                 this.MarkTileFree(tile);
                 this.ChangeTileSprite(tile.LocalPlace, notSelectedTile);
             }
+
         }
 
         // Проходит по списку тайлов и отмечает их как занятые, 
@@ -299,6 +336,21 @@ namespace GridTools.TilemapWithGameData
 
             List<GameDataTile> freeTiles = this.GetOtherTiles().Except(occupiedTiles).ToList<GameDataTile>();
             this.MarkTilesAsFree(freeTiles);
+            CheckTransparancy();
+        }
+
+        private void CheckTransparancy() {
+            bool result = false;
+            foreach (GameDataTile tile in transparentDetectionTiles) {
+                result = tile.IsOccupied() || tile.IsTarget();
+                if (result)
+                    break;
+            }
+
+            if (result != transparency) {
+                transparency = result;
+                onTransparencyChange(transparency);
+            }
         }
 
         private void onDoorDestroyed()

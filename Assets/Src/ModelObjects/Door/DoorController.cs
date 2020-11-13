@@ -12,6 +12,7 @@ public class DoorController : MonoBehaviour
     private DoorModel model;
     private HitRegistrator hitRegitrator;
     private ColorOverlaper colorOverlaper;
+    private ParticleSystem hit;
 
     // Делегаты для реакций на события с этим врагом
     public Action onDestroy;
@@ -20,6 +21,8 @@ public class DoorController : MonoBehaviour
     void Awake()
     {
         colorOverlaper = GetComponentInChildren<ColorOverlaper>();
+        hit = GetComponentInChildren<ParticleSystem>();
+        hit.Stop();
         Model = new DoorModel(4f);
     }
 
@@ -36,20 +39,12 @@ public class DoorController : MonoBehaviour
         Debug.Log("Door HP: " + Model.getCurrentHitPoints());
         if (Model.getCurrentHitPoints() > 0)
         {
-            // Закрашивание красным от попадания.
-            if (colorOverlaper != null)
-            {
-                colorOverlaper.makeRed(1f);
-            }
-            else
-            {
-                LogController.ShowError(LogController.Errors.NoSpriteControllerInDummy);
-            }
-
+            hit.Play();
+            StartCoroutine(Stop(hit.main.duration));
         }
         else
         {
-            StartCoroutine(DeleteThis(1f));
+            StartCoroutine(DeleteThis(0f));
         }
     }
 
@@ -58,7 +53,13 @@ public class DoorController : MonoBehaviour
     {
         yield return new WaitForSeconds(timeToWait);
         SendDeathEvent();
-        Destroy(gameObject);
+    }
+
+    // Корутина запускающаяся при удалении.
+    private IEnumerator Stop(float timeToWait)
+    {
+        yield return new WaitForSeconds(timeToWait);
+        hit.Stop();
     }
 
     // Активирует всех делегатов подписанных на событие уничтожения противника.

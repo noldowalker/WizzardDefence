@@ -6,7 +6,7 @@ namespace GameModels
     public class BaseModel
     {
         protected float hitPoints, maxHitPoints = 5f;
-        protected float speed = 0.03f;
+        protected float speed = 0.01f;
         private float damage;
         private float atackSpeed;
 
