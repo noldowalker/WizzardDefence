@@ -280,7 +280,7 @@ namespace GridTools.TilemapWithGameData
                 ResetTileCount();
                 ResetTileVisited();
 
-                GameDataTile nextTile = checkPathForNexTile(pathFinder.SearchForTile(tileFrom, doorTile));
+                GameDataTile nextTile = checkPathForNexTile(pathFinder.StraitWithDiagonalSearchForTile(tileFrom, doorTile));
 
                 if (nextTile != null)
                     return nextTile;
@@ -289,7 +289,7 @@ namespace GridTools.TilemapWithGameData
                 ResetTileCount();
                 ResetTileVisited();
 
-                nextTile = checkPathForNexTile(pathFinder.AroundSearchForTile(tileFrom, doorTile));
+                nextTile = checkPathForNexTile(pathFinder.AroundWithDiagonalSearchForTile(tileFrom, doorTile));
 
                 return nextTile;
             }
@@ -356,6 +356,17 @@ namespace GridTools.TilemapWithGameData
         private void onDoorDestroyed()
         {
             door = null;
+        }
+
+        // Вспомогательная функция для дебага. Рисует счет алгоритма по клеткам.
+        void OnDrawGizmos()
+        {
+            //if (tilesData != null)
+            //    foreach (KeyValuePair<string, GameDataTile> record in tilesData)
+            //    {
+            //        GameDataTile tile = record.Value;
+            //        UnityEditor.Handles.Label(tile.CenterWorldPlace, ""+tile.LocalPlace.x+","+ tile.LocalPlace.y);
+            //    }
         }
     }
 }

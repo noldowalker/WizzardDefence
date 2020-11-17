@@ -16,7 +16,9 @@ namespace GridTools.PathFinding
         private Dictionary<string, IFindPathStrategy> strategies = new Dictionary<string, IFindPathStrategy>
         {
             {"ClearPathFinding", new ClearFindPathStrategy()},
-            {"AroundFindPathStrategy", new AroundFindPathStrategy()}
+            {"AroundFindPathStrategy", new AroundFindPathStrategy()},
+            {"StraitWithDiagonalFindPathStrategy", new StraitWithDiagonalFindPathStrategy()},
+            {"AroundWithDiagonalFindPathStrategy", new AroundWithDiagonalFindPathStrategy()}
         };
 
         // Входной параметр - тайлмап соответствующего класса, по которому будет происходить поиск.
@@ -34,6 +36,18 @@ namespace GridTools.PathFinding
         public List<GameDataTile> AroundSearchForTile(GameDataTile startTile, GameDataTile endTile)
         {
             return BaseAlhoritm(startTile, endTile, strategies["AroundFindPathStrategy"]); ;
+        }
+
+        // Поиск стратегией котоаря будет строить путь игнорируя занятые другими противниками клетки.
+        public List<GameDataTile> AroundWithDiagonalSearchForTile(GameDataTile startTile, GameDataTile endTile)
+        {
+            return BaseAlhoritm(startTile, endTile, strategies["AroundWithDiagonalFindPathStrategy"]); ;
+        }
+
+        // Поиск стратегией котоаря будет строить путь игнорируя занятые другими противниками клетки.
+        public List<GameDataTile> StraitWithDiagonalSearchForTile(GameDataTile startTile, GameDataTile endTile)
+        {
+            return BaseAlhoritm(startTile, endTile, strategies["StraitWithDiagonalFindPathStrategy"]); ;
         }
 
         //На вход подаются 3 параметра - откуда и до куда искать путь, а так же стратегия поиска.

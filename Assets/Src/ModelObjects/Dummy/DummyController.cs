@@ -38,7 +38,7 @@ public class DummyController : MonoBehaviour
         colorOverlaper = GetComponentInChildren<ColorOverlaper>();
         dummyAnimationController = GetComponent<DummyAnimationController>();
 
-        model = new DummyModel(4f, 1f);
+        model = new DummyModel(2f, 1f);
         isShockedByHit = false;
 
         targetForAttack = null;
@@ -58,7 +58,6 @@ public class DummyController : MonoBehaviour
 
         // Изменение данных модели в связи с попаданием.
         model.inflictDamage(1f);
-        Debug.Log(" HP: " + model.getCurrentHitPoints());
         if (model.getCurrentHitPoints() > 0) {
             // Проигрыш анимации попадания.
             float animationTime = dummyAnimationController.PlayHitedAnimation(1f);
@@ -169,7 +168,6 @@ public class DummyController : MonoBehaviour
         model.state.SetAttacking();
         targetForAttack = target;
         target.onDestroy += onDoorDestroy;
-        Debug.Log(model.AtackSpeed);
         StartCoroutine(Strike(model.AtackSpeed));
     }
 
