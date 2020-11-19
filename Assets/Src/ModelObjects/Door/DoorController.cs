@@ -12,18 +12,21 @@ public class DoorController : MonoBehaviour
     private DoorModel model;
     private HitRegistrator hitRegitrator;
     private ColorOverlaper colorOverlaper;
-    private ParticleSystem hit;
+    private ParticleSystem[] hits;
 
     // Делегаты для реакций на события с этим врагом
     public Action onDestroy;
+    public Action<string> onHit;
     public DoorModel Model { get => model; set => model = value; }
 
     void Awake()
     {
         colorOverlaper = GetComponentInChildren<ColorOverlaper>();
-        hit = GetComponentInChildren<ParticleSystem>();
-        hit.Stop();
-        Model = new DoorModel(4f);
+        hits = GetComponentsInChildren<ParticleSystem>();
+        foreach (ParticleSystem hit in hits) {
+            hit.Stop();
+        }
+        Model = new DoorModel(50f);
     }
 
     // Update is called once per frame
@@ -36,16 +39,29 @@ public class DoorController : MonoBehaviour
     {
         // Изменение данных модели в связи с попаданием.
         Model.inflictDamage(attacker.Damage);
-        Debug.Log("Door HP: " + Model.getCurrentHitPoints());
+        //Debug.Log("Door HP: " + Model.getCurrentHitPoints());
         if (Model.getCurrentHitPoints() > 0)
         {
-            hit.Play();
-            StartCoroutine(Stop(hit.main.duration));
+            ParticleSystem hit = getRandomHit();
+            if (hit != null) {
+                hit.Play();
+                StartCoroutine(Stop(hit.main.duration, hit));
+            }
+            SendHitEvent();
         }
         else
         {
+            SendHitEvent();
             StartCoroutine(DeleteThis(0f));
         }
+    }
+
+    private ParticleSystem getRandomHit() {
+        int length = hits.Length;
+        if (length == 0)
+            return null;
+
+        return hits[UnityEngine.Random.Range(0, hits.Length)];
     }
 
     // Корутина запускающаяся при удалении.
@@ -56,7 +72,7 @@ public class DoorController : MonoBehaviour
     }
 
     // Корутина запускающаяся при удалении.
-    private IEnumerator Stop(float timeToWait)
+    private IEnumerator Stop(float timeToWait, ParticleSystem hit)
     {
         yield return new WaitForSeconds(timeToWait);
         hit.Stop();
@@ -65,9 +81,15 @@ public class DoorController : MonoBehaviour
     // Активирует всех делегатов подписанных на событие уничтожения противника.
     private void SendDeathEvent()
     {
-        if (onDestroy != null)
-        {
-            onDestroy();
-        }
+        onDestroy?.Invoke();
+    }
+
+    public string GetHpText() {
+        return "" + Model.getCurrentHitPoints() + "/" + Model.getMaxHitPoints();
+    }
+    // Активирует всех делегатов подписанных на событие удара в дверь
+    private void SendHitEvent()
+    {
+        onHit?.Invoke(GetHpText());
     }
 }

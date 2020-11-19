@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace GridTools.TilemapWithGameData
         private RoomTilemapController roomTilemap;
         private DoorController door;
 
+
         void Awake()
         {
             gameTilemap = GetComponentInChildren<GameFieldController>();
@@ -22,11 +24,25 @@ namespace GridTools.TilemapWithGameData
                 door.onDestroy += roomTilemap.DestroyDoor;
             }
             gameTilemap.onTransparencyChange += wallsTilemap.changeTransparensyOn;
+
+            BaseSceneFinder finder = GetComponentInParent<BaseSceneFinder>();
+            InterfaceController ui = finder.GetInterfaceController();
+            door.onHit += ui.SetHpText;
+            ui.SetHpText(door.GetHpText());
         }
 
         void Update()
         {
 
+        }
+
+        public DoorController GetDoorController() {
+            return door;
+        }
+
+        public void SetAction(Action<String> function)
+        {
+            door.onHit += function;
         }
     }
 }

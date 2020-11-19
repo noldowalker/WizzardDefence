@@ -34,6 +34,11 @@ namespace GameModels
             return this.hitPoints;
         }
 
+        public float getMaxHitPoints()
+        {
+            return this.maxHitPoints;
+        }
+
         public void inflictDamage(float damage)
         {
             this.hitPoints = (this.hitPoints < damage) ? 0 : this.hitPoints - damage;

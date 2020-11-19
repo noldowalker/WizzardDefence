@@ -16,4 +16,14 @@ public class BaseSceneFinder : MonoBehaviour
     {
         return GetComponentInChildren<GameFieldController>();
     }
+
+    public GameGridController GetGridController()
+    {
+        return GetComponentInChildren<GameGridController>();
+    }
+
+    public InterfaceController GetInterfaceController()
+    {
+        return GetComponentInChildren<InterfaceController>();
+    }
 }

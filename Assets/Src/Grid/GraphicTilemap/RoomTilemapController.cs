@@ -6,15 +6,17 @@ using UnityEngine.Tilemaps;
 public class RoomTilemapController : MonoBehaviour
 {
     // Список свободных от меток тайлов
-    private Vector3Int doorTilePosition;
+    private List<Vector3Int> doorTilesPositions;
     private Tilemap tilemap;
-
+    private List<Vector3Int> tilesData;
     public Tile doorKikedTile;
 
     // Start is called before the first frame update
     void Awake()
     {
         tilemap = GetComponent<Tilemap>();
+        tilesData = new List<Vector3Int>();
+        doorTilesPositions = new List<Vector3Int>();
         CreateTileInfo();
     }
 
@@ -30,15 +32,27 @@ public class RoomTilemapController : MonoBehaviour
                 switch (currentTile.name)
                 {
                     case "inside_door_closed":
-                        doorTilePosition = position;
+                        doorTilesPositions.Add(position);
                         break;
                 }
             }
+            tilesData.Add(position);
         }
     }
 
     public void DestroyDoor()
     {
-        tilemap.SetTile(doorTilePosition, doorKikedTile);
+        foreach (Vector3Int doorTilePosition in doorTilesPositions)
+            tilemap.SetTile(doorTilePosition, doorKikedTile);
+    }
+
+    // Вспомогательная функция для дебага. Рисует счет алгоритма по клеткам.
+    void OnDrawGizmos()
+    {
+        //if (tilesData != null)
+        //    foreach (Vector3Int record in tilesData)
+        //    {
+        //        UnityEditor.Handles.Label(tilemap.GetCellCenterWorld(record), "" + record.x + "," + record.y);
+        //    }
     }
 }
