@@ -65,7 +65,7 @@ public class DummyController : MonoBehaviour
             // Закрашивание красным от попадания.
             if (colorOverlaper != null)
             {
-                colorOverlaper.makeRed(animationTime);
+                colorOverlaper.makeHitColoration(animationTime);
             }
             else
             {
@@ -75,7 +75,6 @@ public class DummyController : MonoBehaviour
             // Останавливаем действия на время проигрыша анимации попадания.
             if (!isShockedByHit)
             {
-                
                 StartCoroutine(HitShock(animationTime));
             } else {
                 shockTime += animationTime;
@@ -88,6 +87,38 @@ public class DummyController : MonoBehaviour
         }
     }
 
+    public void  makeInvisible() {
+        colorOverlaper.makeInvisible(Color.white);
+        model.Visible = false;
+    }
+
+    public void makeVisible()
+    {
+        colorOverlaper.makeVisible(Color.white);
+        model.Visible = true;
+    }
+
+    public bool isVisible() {
+        return model.Visible;
+    }
+    public void setInsideOrder()
+    {
+        SetSortingOrder(10);
+    }
+
+    public void setOutsideOrder()
+    {
+        SetSortingOrder(1);
+    }
+
+    private void SetSortingOrder(int order) {
+        Array.ForEach (
+            this.GetComponentsInChildren<SpriteRenderer>(),
+            (SpriteRenderer sr) => {
+                sr.sortingOrder = 10;
+            }
+        );
+    }
     // Корутина запускающаяся при удалении.
     private IEnumerator DeleteThis(float timeToWait)
     {

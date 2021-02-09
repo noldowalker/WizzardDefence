@@ -61,30 +61,42 @@ public class EnemiesMainController : MonoBehaviour
         Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
         GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
 
-        if (enemy.isIdle()) {
-            if (tilemap.IsDoorTile(enemyTileData)) {
-                if (tilemap.door != null) {
-                    enemy.Attack(tilemap.door);
-                }
-                else {
-                    //TODO: реакция на проигрыш
-                }
-            } else {
-                this.IdleUpdate(enemy, enemyTileData);
-            }
-        }
+        if (enemy.isIdle())
+            this.IdleUpdate(enemy, enemyTileData);
 
         return enemyTileData;
     }
 
     private void IdleUpdate(DummyController enemy, GameDataTile enemyTileData) {
-        GameDataTile nextTile = tilemap.FindPathToEntrance(enemyTileData);
+        
+
+        if (tilemap.IsDoorOutsideTile(enemyTileData) && tilemap.door != null)
+        {
+            enemy.Attack(tilemap.door);
+            return;
+        }
+
+        GameDataTile nextTile = null;
+        nextTile = ToTheTreasure(enemy, enemyTileData);
 
         if (nextTile != null)
         {
             tilemap.MarkTileAsTarget(nextTile);
             enemy.Move(nextTile.CenterWorldPlace);
         }
+    }
+
+    private GameDataTile ToTheTreasure(DummyController enemy, GameDataTile enemyTileData) {
+        if (tilemap.IsDoorOutsideTile(enemyTileData) && enemy.isVisible())
+            enemy.makeInvisible();
+
+        if (tilemap.IsDoorInsideTile(enemyTileData) && !enemy.isVisible())
+        {
+            enemy.makeVisible();
+            enemy.setInsideOrder();
+        }
+
+        return tilemap.ToTheTreasure(enemyTileData);
     }
 
     private void HandleEnemyDeath(Vector3 deathPoint, Vector3 targetPoint)

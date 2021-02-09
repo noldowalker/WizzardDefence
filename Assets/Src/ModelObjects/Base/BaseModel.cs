@@ -9,6 +9,7 @@ namespace GameModels
         protected float speed = 0.01f;
         private float damage;
         private float atackSpeed;
+        public bool Visible { get; set; } = true;
 
         public State state;
 

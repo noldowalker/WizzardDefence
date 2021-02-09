@@ -26,7 +26,7 @@ public class DoorController : MonoBehaviour
         foreach (ParticleSystem hit in hits) {
             hit.Stop();
         }
-        Model = new DoorModel(50f);
+        Model = new DoorModel(1f);
     }
 
     // Update is called once per frame

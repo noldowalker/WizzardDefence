@@ -21,10 +21,14 @@ namespace GridTools.TilemapWithGameData
         private List<GameDataTile> otherTiles;
         // Список тайлов при занятости которых стена становится прозрачной
         private List<GameDataTile> transparentDetectionTiles;
-        // Место куда устремятся монстры
-        private List<GameDataTile> doorTiles;
+        // Внешние клетки двери
+        private List<GameDataTile> doorOutsideTiles;
+        // Внутренние клетки двери
+        private List<GameDataTile> doorInsideTiles;
+        // Вход в башню где лежат сокровища
+        private List<GameDataTile> houseInterierTiles;
         // Минимальное и максимальное значения сетки
-        private int minX = 0, minY = 0, maxX = 0, maxY = 0;
+        private int minX = 0, minY = 0, maxX = 0, maxY = 0, spawnX = 0, doorOutsideX = 0, doorInsideX = 0, houseInterierX = 0;
         // Экземпляр класса который осуществляет поиск пути по тайлмапу.
         private GameFieldPathFinder pathFinder;
 
@@ -52,7 +56,9 @@ namespace GridTools.TilemapWithGameData
             otherTiles = new List<GameDataTile>();
             spawnTiles = new List<GameDataTile>();
             blockedTiles = new List<GameDataTile>();
-            doorTiles = new List<GameDataTile>();
+            doorOutsideTiles = new List<GameDataTile>();
+            doorInsideTiles = new List<GameDataTile>();
+            houseInterierTiles = new List<GameDataTile>();
             transparentDetectionTiles = new List<GameDataTile>();
 
             CreateTileInfo();
@@ -120,13 +126,23 @@ namespace GridTools.TilemapWithGameData
                         case "tile_monster":
                             spawnTiles.Add(currentTileData);
                             otherTiles.Add(currentTileData);
+                            spawnX = position.x;
                             break;
                         case "tile_bloked":
                             blockedTiles.Add(currentTileData);
                             currentTileData.Blocked = true;
                             break;
-                        case "tile_move_to":
-                            doorTiles.Add(currentTileData);
+                        case "tile_door_outside":
+                            doorOutsideTiles.Add(currentTileData);
+                            doorOutsideX = position.x;
+                            break;
+                        case "tile_door_inside":
+                            doorInsideTiles.Add(currentTileData);
+                            doorInsideX = position.x;
+                            break;
+                        case "tile_house_interier":
+                            houseInterierTiles.Add(currentTileData);
+                            houseInterierX = position.x;
                             break;
                         default:
                             otherTiles.Add(currentTileData);
@@ -135,13 +151,13 @@ namespace GridTools.TilemapWithGameData
                 }
             }
 
-            if (doorTiles != null) {
+            if (doorOutsideTiles != null) {
                 GetTilesForTransparent();
             }
         }
 
         private void GetTilesForTransparent() {
-            foreach (GameDataTile doorTile in doorTiles) {
+            foreach (GameDataTile doorTile in doorOutsideTiles) {
                 Vector3Int doorCoords = doorTile.LocalPlace;
                 transparentDetectionTiles.Add(doorTile);
 
@@ -188,15 +204,27 @@ namespace GridTools.TilemapWithGameData
         }
 
         // Гетер для целевого тайла, за которым дверь. Все монстры побегут сюда.
-        public List<GameDataTile> GetDoorTiles()
+        public List<GameDataTile> GetDoorOutsideTiles()
         {
-            return doorTiles;
+            return doorOutsideTiles;
         }
 
-        // Проверяет не является ли переданный тайл тем, рядом с которым дверь.
-        public bool IsDoorTile(GameDataTile tileForCheck)
+        // Проверяет не является ли переданный тайл соседним извне по отношению к двери.
+        public bool IsDoorOutsideTile(GameDataTile tileForCheck)
         {
-            return doorTiles.Contains(tileForCheck);
+            return doorOutsideTiles.Contains(tileForCheck);
+        }
+
+        // Проверяет не является ли переданный тайл соседним изнутри по отношению к двери.
+        public bool IsDoorInsideTile(GameDataTile tileForCheck)
+        {
+            return doorInsideTiles.Contains(tileForCheck);
+        }
+
+        // Проверяет не является ли переданный тайл входом в сокровищницу.
+        public bool IsHouseInterierTile(GameDataTile tileForCheck)
+        {
+            return houseInterierTiles.Contains(tileForCheck);
         }
 
         // Получив мировые координаты, вернет позицию тайла.
@@ -280,10 +308,10 @@ namespace GridTools.TilemapWithGameData
         }
 
         // Перебирает набор тайлов стоящих рядом с дверью, выбирая из них ближайший не занятый.
-        private GameDataTile GetClosestFreeDoorTile(GameDataTile tileFrom) {
+        private GameDataTile GetClosestFreeTileInList(GameDataTile tileFrom, List<GameDataTile> tileList) {
             float distance = 0f;
             GameDataTile resultTile = null;
-            foreach (GameDataTile doorTile in doorTiles) {
+            foreach (GameDataTile doorTile in tileList) {
                 float tempDistance = Vector3Int.Distance(doorTile.LocalPlace, tileFrom.LocalPlace);
                 if (
                     (doorTile.IsFree())
@@ -297,11 +325,11 @@ namespace GridTools.TilemapWithGameData
         }
 
         // Перебирает набор тайлов стоящих рядом с дверью, выбирая из них ближайший не занятый.
-        private GameDataTile GetClosestAnyDoorTile(GameDataTile tileFrom)
+        private GameDataTile GetClosestAnyTileInList(GameDataTile tileFrom, List<GameDataTile> tileList)
         {
             float distance = 0f;
             GameDataTile resultTile = null;
-            foreach (GameDataTile doorTile in doorTiles)
+            foreach (GameDataTile doorTile in tileList)
             {
                 float tempDistance = Vector3Int.Distance(doorTile.LocalPlace, tileFrom.LocalPlace);
                 if (distance == 0 || tempDistance < distance)               
@@ -313,23 +341,58 @@ namespace GridTools.TilemapWithGameData
             return resultTile;
         }
 
+        public GameDataTile ToTheTreasure(GameDataTile tileFrom) {
+            GameDataTile tileTo = null;
+
+            switch (tileFrom.LocalPlace.x) {
+                case int x when tileFrom.LocalPlace.x > this.doorOutsideX:
+                    Debug.Log("Враг снаружи стен");
+                    tileTo = FindPathTo(
+                        tileFrom,
+                        GetClosestFreeTileInList(tileFrom, doorOutsideTiles),
+                        GetClosestAnyTileInList(tileFrom, doorOutsideTiles)
+                    );
+                    break;
+                case int x when tileFrom.LocalPlace.x > this.doorInsideX:
+                    Debug.Log("Враг проходит внутрь");
+                    tileTo = FindPathTo(
+                        tileFrom,
+                        GetClosestFreeTileInList(tileFrom, doorInsideTiles),
+                        GetClosestAnyTileInList(tileFrom, doorInsideTiles)
+                    );
+                    break;
+                case int x when tileFrom.LocalPlace.x > this.houseInterierX:
+                    Debug.Log("Враг движется внутри");
+                    tileTo = FindPathTo(
+                        tileFrom,
+                        GetClosestFreeTileInList(tileFrom, houseInterierTiles),
+                        GetClosestAnyTileInList(tileFrom, houseInterierTiles)
+                    );
+                    break;
+                default:
+                    Debug.Log("Не найдена следующая группа тайлов во время движения в дом.");
+                    break;
+                ;
+            }
+
+            //ToDO: потом отдай нормальный тайл для движения
+            return tileTo;
+        }
+
         // Ищет путь ко входу 2мя разными способами. Один в обход занятых клеток, второй по кратчайшему без занятых.
-        public GameDataTile FindPathToEntrance(GameDataTile tileFrom)
+        public GameDataTile FindPathTo(GameDataTile tileFrom, GameDataTile tileToFree, GameDataTile tileToAny)
         {
             
-            if (tilesData.ContainsKey(tileFrom.Name) && doorTiles.Count != 0)
+            if (tilesData.ContainsKey(tileFrom.Name) && doorOutsideTiles.Count != 0)
             {
-                GameDataTile doorFreeTile = GetClosestFreeDoorTile(tileFrom);
-                GameDataTile doorAnyTile = GetClosestAnyDoorTile(tileFrom);
-
                 ResetTileCount();
                 ResetTileVisited();
 
                 GameDataTile nextTile = null;
 
-                if (doorFreeTile != null)
+                if (tileToFree != null)
                 {
-                    nextTile = checkPathForNexTile(pathFinder.StraitWithDiagonalSearchForTile(tileFrom, doorFreeTile));
+                    nextTile = checkPathForNexTile(pathFinder.StraitWithDiagonalSearchForTile(tileFrom, tileToFree));
 
                     if (nextTile != null)
                         return nextTile;
@@ -338,7 +401,7 @@ namespace GridTools.TilemapWithGameData
                 ResetTileCount();
                 ResetTileVisited();
 
-                nextTile = checkPathForNexTile(pathFinder.AroundWithDiagonalSearchForTile(tileFrom, doorAnyTile));
+                nextTile = checkPathForNexTile(pathFinder.AroundWithDiagonalSearchForTile(tileFrom, tileToAny));
 
                 return nextTile;
             }
@@ -410,12 +473,12 @@ namespace GridTools.TilemapWithGameData
         // Вспомогательная функция для дебага. Рисует счет алгоритма по клеткам.
         void OnDrawGizmos()
         {
-            //if (tilesData != null)
-            //    foreach (KeyValuePair<string, GameDataTile> record in tilesData)
-            //    {
-            //        GameDataTile tile = record.Value;
-            //        UnityEditor.Handles.Label(tile.CenterWorldPlace, "" + tile.LocalPlace.x + "," + tile.LocalPlace.y);
-            //    }
+            if (tilesData != null)
+                foreach (KeyValuePair<string, GameDataTile> record in tilesData)
+                {
+                    GameDataTile tile = record.Value;
+                    UnityEditor.Handles.Label(tile.CenterWorldPlace, "" + tile.LocalPlace.x + "," + tile.LocalPlace.y);
+                }
         }
     }
 }
