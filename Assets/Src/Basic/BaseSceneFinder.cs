@@ -6,7 +6,7 @@ using GridTools.TilemapWithGameData;
 public class BaseSceneFinder : MonoBehaviour
 {
     public bool muteErrors;
-    // Start is called before the first frame update
+
     void Awake()
     {
         LogController.mute = muteErrors;
@@ -25,5 +25,10 @@ public class BaseSceneFinder : MonoBehaviour
     public InterfaceController GetInterfaceController()
     {
         return GetComponentInChildren<InterfaceController>();
+    }
+
+    public TreasuryController GetTreasureController()
+    {
+        return GetComponent<TreasuryController>();
     }
 }

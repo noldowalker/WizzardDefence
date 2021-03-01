@@ -36,6 +36,7 @@ public class EnemiesMainController : MonoBehaviour
             Vector3 enemyPosition = enemy.gameObject.transform.position;
             Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
             GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
+            enemy.AlignToCoords(enemyTileData.CenterWorldPlace);
             occupiedTiles.Add(enemyTileData);
         }
 
@@ -51,7 +52,9 @@ public class EnemiesMainController : MonoBehaviour
         List<GameDataTile> occupiedTiles = new List<GameDataTile>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
-            occupiedTiles.Add(this.EnemyUpdate(enemy));            
+            GameDataTile currentTile = EnemyUpdate(enemy);
+            if (currentTile != null)
+                occupiedTiles.Add(currentTile);            
         }
         tilemap.ChangeTilesOccupationAccorgingTileData(occupiedTiles);
     }
@@ -62,17 +65,27 @@ public class EnemiesMainController : MonoBehaviour
         GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
 
         if (enemy.isIdle())
-            this.IdleUpdate(enemy, enemyTileData);
+            IdleUpdate(enemy, enemyTileData);
+
+        if (enemy.IsReadyToTurnBack())
+            TurnBackUpdate(enemy);
 
         return enemyTileData;
     }
 
     private void IdleUpdate(DummyController enemy, GameDataTile enemyTileData) {
-        
+        if (enemy.IsGoingBack()) {
+            return;
+        }
 
-        if (tilemap.IsDoorOutsideTile(enemyTileData) && tilemap.door != null)
+        if (tilemap.IsDoorOutsideTile(enemyTileData) && !tilemap.IsDoorBroken())
         {
             enemy.Attack(tilemap.door);
+            return;
+        }
+        
+        if (tilemap.IsHouseInterierTile(enemyTileData)) {
+            enemy.FindAndStealTreasure(scene.GetTreasureController());
             return;
         }
 
@@ -84,6 +97,12 @@ public class EnemiesMainController : MonoBehaviour
             tilemap.MarkTileAsTarget(nextTile);
             enemy.Move(nextTile.CenterWorldPlace);
         }
+    }
+
+    private void TurnBackUpdate(DummyController enemy) {
+        GameDataTile tile = tilemap.GetAnyFreeTileFromHouseInterierTiles();
+        enemy.AlignToCoords(tile.CenterWorldPlace);
+        enemy.SetReadyToMove();
     }
 
     private GameDataTile ToTheTreasure(DummyController enemy, GameDataTile enemyTileData) {

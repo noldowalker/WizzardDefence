@@ -209,6 +209,13 @@ namespace GridTools.TilemapWithGameData
             return doorOutsideTiles;
         }
 
+
+        // Проверяет разрушена ли дверь
+        public bool IsDoorBroken()
+        {
+            return door == null;
+        }
+
         // Проверяет не является ли переданный тайл соседним извне по отношению к двери.
         public bool IsDoorOutsideTile(GameDataTile tileForCheck)
         {
@@ -341,12 +348,30 @@ namespace GridTools.TilemapWithGameData
             return resultTile;
         }
 
+
+        // Гетер для любого свободного тайла из набора
+        private GameDataTile GetAnyFreeTileFrom(List<GameDataTile> tileList)
+        {
+            foreach (GameDataTile tile in tileList)
+            {
+                if (tile.IsFree() && tile.IsNotBlocked() && tile.IsNotTarget()) {
+                    return tile;
+                }
+            }
+
+            return null;
+        }
+
+        // Гетер для любого свободного тайла из ведущих внутрь здания
+        public GameDataTile GetAnyFreeTileFromHouseInterierTiles() {
+            return GetAnyFreeTileFrom(houseInterierTiles);
+        }
+
         public GameDataTile ToTheTreasure(GameDataTile tileFrom) {
             GameDataTile tileTo = null;
 
             switch (tileFrom.LocalPlace.x) {
                 case int x when tileFrom.LocalPlace.x > this.doorOutsideX:
-                    Debug.Log("Враг снаружи стен");
                     tileTo = FindPathTo(
                         tileFrom,
                         GetClosestFreeTileInList(tileFrom, doorOutsideTiles),
@@ -354,7 +379,6 @@ namespace GridTools.TilemapWithGameData
                     );
                     break;
                 case int x when tileFrom.LocalPlace.x > this.doorInsideX:
-                    Debug.Log("Враг проходит внутрь");
                     tileTo = FindPathTo(
                         tileFrom,
                         GetClosestFreeTileInList(tileFrom, doorInsideTiles),
@@ -362,7 +386,6 @@ namespace GridTools.TilemapWithGameData
                     );
                     break;
                 case int x when tileFrom.LocalPlace.x > this.houseInterierX:
-                    Debug.Log("Враг движется внутри");
                     tileTo = FindPathTo(
                         tileFrom,
                         GetClosestFreeTileInList(tileFrom, houseInterierTiles),
@@ -375,7 +398,6 @@ namespace GridTools.TilemapWithGameData
                 ;
             }
 
-            //ToDO: потом отдай нормальный тайл для движения
             return tileTo;
         }
 

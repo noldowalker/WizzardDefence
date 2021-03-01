@@ -6,11 +6,13 @@ using GridTools.TilemapWithGameData;
 
 public class InterfaceController : MonoBehaviour
 {
-    private HPCountController hpText;
+    private HPTextController HpText { get; set; }
+    private TreasureTextController TreasureText { get; set; }
 
     void Awake()
     {
-        hpText = GetComponentInChildren<HPCountController>();
+        HpText = GetComponentInChildren<HPTextController>();
+        TreasureText = GetComponentInChildren<TreasureTextController>();
     }
 
     // Update is called once per frame
@@ -20,6 +22,10 @@ public class InterfaceController : MonoBehaviour
     }
 
     public void SetHpText(string text) {
-        hpText.ChangeTextOn(text);
+        HpText.ChangeTextOn(text);
+    }
+
+    public void SetTreasureText(string text) {
+        TreasureText.ChangeTextOn(text);
     }
 }

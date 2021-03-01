@@ -10,7 +10,9 @@ namespace GameModels
             Moving,
             Attacking,
             Stunned,
-            Diyng
+            Diyng,
+            Stealing,
+            ReadyToTurnBack
         };
 
         private possibleStates currentState;
@@ -38,5 +40,13 @@ namespace GameModels
         public bool IsDiyng() { return currentState == possibleStates.Diyng; }
 
         public void SetDiyng() { currentState = possibleStates.Diyng; }
+
+        public bool IsStealing() { return currentState == possibleStates.Stealing; }
+
+        public void SetStealing() { currentState = possibleStates.Stealing; }
+
+        public bool IsReadyToTurnBack() { return currentState == possibleStates.ReadyToTurnBack; }
+
+        public void SetReadyToTurnBack() { currentState = possibleStates.ReadyToTurnBack; }
     }
 }

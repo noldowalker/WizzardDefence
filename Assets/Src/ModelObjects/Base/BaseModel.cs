@@ -10,6 +10,7 @@ namespace GameModels
         private float damage;
         private float atackSpeed;
         public bool Visible { get; set; } = true;
+        public bool GoingBack { get; set; } = false;
 
         public State state;
 

@@ -101,6 +101,7 @@ public class BaseEnemyController : MonoBehaviour
     public bool isVisible() {
         return model.Visible;
     }
+
     public void setInsideOrder()
     {
         SetSortingOrder(10);
@@ -177,6 +178,11 @@ public class BaseEnemyController : MonoBehaviour
         return model.state.IsIdle();
     }
 
+    public bool IsReadyToTurnBack()
+    {
+        return model.state.IsReadyToTurnBack();
+    }
+        
     // Активирует всех делегатов подписанных на событие уничтожения противника.
     private void SendDeathEvent()
     {
@@ -195,10 +201,11 @@ public class BaseEnemyController : MonoBehaviour
         }
     }
 
+    // ToDo: сделай через интерфейс
     public void Attack(DoorController target) {
         model.state.SetAttacking();
         targetForAttack = target;
-        target.onDestroy += onDoorDestroy;
+        target.onDestroy += onTargetDestroy;
         StartCoroutine(Strike(model.AtackSpeed));
     }
 
@@ -213,9 +220,43 @@ public class BaseEnemyController : MonoBehaviour
 
         model.state.SetIdle();
     }
-
+         
     // Срабатывает на событии разрушения текущией цели - убираем цель.
-    private void onDoorDestroy() {
+    private void onTargetDestroy() {
         targetForAttack = null;
+    }
+
+    // Запускает процесс кражи сокровища
+    public void FindAndStealTreasure(IStealable target) {
+        float stealingSpeed = 1f;
+        makeInvisible();
+        model.state.SetStealing();
+        AwayFromField();
+        StartCoroutine(StealProcess(stealingSpeed, target));
+        
+    }
+
+    // Корутина кражи
+    private IEnumerator StealProcess(float timeToWait, IStealable target)
+    {
+        yield return new WaitForSeconds(timeToWait);
+        target.tryTakeTreasure(1);
+
+        model.state.SetReadyToTurnBack();
+    }
+
+    // Смещает объект вне поля
+    private void AwayFromField() {
+        this.gameObject.transform.position = new Vector3(10000f, 10000f, this.gameObject.transform.position.z);
+    }
+
+    public void SetReadyToMove() {
+        makeVisible();
+        model.GoingBack = true;
+        model.state.SetIdle();
+    }
+
+    public bool IsGoingBack() {
+        return model.GoingBack;
     }
 }

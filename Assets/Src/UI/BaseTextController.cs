@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HPCountController : MonoBehaviour
+public class BaseTextController : MonoBehaviour
 {
     private Text text;
     // Start is called before the first frame update
@@ -19,7 +19,8 @@ public class HPCountController : MonoBehaviour
 
     }
 
-    public void ChangeTextOn(string textValue) {
+    public void ChangeTextOn(string textValue)
+    {
         GetComponent<Text>().text = textValue;
     }
 }
