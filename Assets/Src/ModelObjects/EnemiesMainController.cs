@@ -68,29 +68,26 @@ public class EnemiesMainController : MonoBehaviour
             IdleUpdate(enemy, enemyTileData);
 
         if (enemy.IsReadyToTurnBack())
-            TurnBackUpdate(enemy);
+            GoBackUpdate(enemy);
 
         return enemyTileData;
     }
 
     private void IdleUpdate(DummyController enemy, GameDataTile enemyTileData) {
-        if (enemy.IsGoingBack()) {
-            return;
-        }
-
         if (tilemap.IsDoorOutsideTile(enemyTileData) && !tilemap.IsDoorBroken())
         {
             enemy.Attack(tilemap.door);
             return;
         }
         
-        if (tilemap.IsHouseInterierTile(enemyTileData)) {
+        if (tilemap.IsHouseInterierTile(enemyTileData) && !enemy.IsGoingBack()) {
             enemy.FindAndStealTreasure(scene.GetTreasureController());
             return;
         }
 
         GameDataTile nextTile = null;
-        nextTile = ToTheTreasure(enemy, enemyTileData);
+        
+        nextTile = (enemy.IsGoingBack()) ? ToTheExit(enemy, enemyTileData) : ToTheTreasure(enemy, enemyTileData);
 
         if (nextTile != null)
         {
@@ -99,13 +96,29 @@ public class EnemiesMainController : MonoBehaviour
         }
     }
 
-    private void TurnBackUpdate(DummyController enemy) {
+    private void GoBackUpdate(DummyController enemy) {
         GameDataTile tile = tilemap.GetAnyFreeTileFromHouseInterierTiles();
         enemy.AlignToCoords(tile.CenterWorldPlace);
         enemy.SetReadyToMove();
     }
 
-    private GameDataTile ToTheTreasure(DummyController enemy, GameDataTile enemyTileData) {
+    private GameDataTile ToTheExit(DummyController enemy, GameDataTile enemyTileData) {
+        Debug.Log("ToTheExit");
+        if (tilemap.IsDoorInsideTile(enemyTileData) && enemy.isVisible())
+            enemy.makeInvisible();
+
+        if (tilemap.IsDoorOutsideTile(enemyTileData) && !enemy.isVisible())
+        {
+            enemy.makeVisible();
+            enemy.setOutsideOrder();
+        }
+
+        return tilemap.ToTheExit(enemyTileData);
+    }
+
+    private GameDataTile ToTheTreasure(DummyController enemy, GameDataTile enemyTileData)
+    {
+        Debug.Log("ToTheTreasure");
         if (tilemap.IsDoorOutsideTile(enemyTileData) && enemy.isVisible())
             enemy.makeInvisible();
 

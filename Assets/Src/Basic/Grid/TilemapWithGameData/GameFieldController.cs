@@ -401,6 +401,43 @@ namespace GridTools.TilemapWithGameData
             return tileTo;
         }
 
+        public GameDataTile ToTheExit(GameDataTile tileFrom)
+        {
+            GameDataTile tileTo = null;
+
+            switch (tileFrom.LocalPlace.x)
+            {
+
+                case int x when tileFrom.LocalPlace.x < this.doorInsideX:
+                    tileTo = FindPathTo(
+                        tileFrom,
+                        GetClosestFreeTileInList(tileFrom, doorInsideTiles),
+                        GetClosestAnyTileInList(tileFrom, doorInsideTiles)
+                    );
+                    break;
+                case int x when tileFrom.LocalPlace.x < this.doorOutsideX:
+                    tileTo = FindPathTo(
+                        tileFrom,
+                        GetClosestFreeTileInList(tileFrom, doorOutsideTiles),
+                        GetClosestAnyTileInList(tileFrom, doorOutsideTiles)
+                    );
+                    break;
+                case int x when tileFrom.LocalPlace.x < spawnX:
+                    tileTo = FindPathTo(
+                        tileFrom,
+                        GetClosestFreeTileInList(tileFrom, spawnTiles),
+                        GetClosestAnyTileInList(tileFrom, spawnTiles)
+                    );
+                    break;
+                default:
+                    Debug.Log("Не найдена следующая группа тайлов во время движения в дом.");
+                    break;
+                    ;
+            }
+
+            return tileTo;
+        }
+
         // Ищет путь ко входу 2мя разными способами. Один в обход занятых клеток, второй по кратчайшему без занятых.
         public GameDataTile FindPathTo(GameDataTile tileFrom, GameDataTile tileToFree, GameDataTile tileToAny)
         {

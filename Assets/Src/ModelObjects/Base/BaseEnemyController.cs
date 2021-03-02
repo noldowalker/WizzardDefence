@@ -257,6 +257,7 @@ public class BaseEnemyController : MonoBehaviour
     }
 
     public bool IsGoingBack() {
+        Debug.Log("GoingBack = " + model.GoingBack);
         return model.GoingBack;
     }
 }
