@@ -53,6 +53,7 @@ namespace GridTools.TilemapWithGameData
             interfaceTilemap = GetComponent<Tilemap>();
             lastSelectedTilePos = new Vector3Int(100, 100, 100);
             tilesData = new Dictionary<string, GameDataTile>();
+            //ToDO: поменять название на что-то типа WalkableTiles
             otherTiles = new List<GameDataTile>();
             spawnTiles = new List<GameDataTile>();
             blockedTiles = new List<GameDataTile>();
@@ -130,18 +131,22 @@ namespace GridTools.TilemapWithGameData
                             break;
                         case "tile_bloked":
                             blockedTiles.Add(currentTileData);
+                            otherTiles.Add(currentTileData);
                             currentTileData.Blocked = true;
                             break;
                         case "tile_door_outside":
                             doorOutsideTiles.Add(currentTileData);
+                            otherTiles.Add(currentTileData);
                             doorOutsideX = position.x;
                             break;
                         case "tile_door_inside":
                             doorInsideTiles.Add(currentTileData);
+                            otherTiles.Add(currentTileData);
                             doorInsideX = position.x;
                             break;
                         case "tile_house_interier":
                             houseInterierTiles.Add(currentTileData);
+                            otherTiles.Add(currentTileData);
                             houseInterierX = position.x;
                             break;
                         default:
