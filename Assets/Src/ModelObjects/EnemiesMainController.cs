@@ -31,7 +31,8 @@ public class EnemiesMainController : MonoBehaviour
         List<GameDataTile> occupiedTiles = new List<GameDataTile>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
-            enemy.onEnemyDestroy += this.HandleEnemyDeath;
+            enemy.onEnemyDestroy += HandleEnemyDeath;
+            enemy.onEnemyDropTreasure += GetComponentInParent<BaseSceneFinder>().GetTreasureController().ReturnTreasure;
             enemy.onMoveEnded += this.HandleEnemyWithoutTarget;
             Vector3 enemyPosition = enemy.gameObject.transform.position;
             Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
@@ -103,7 +104,6 @@ public class EnemiesMainController : MonoBehaviour
     }
 
     private GameDataTile ToTheExit(DummyController enemy, GameDataTile enemyTileData) {
-        Debug.Log("ToTheExit");
         if (tilemap.IsDoorInsideTile(enemyTileData) && enemy.isVisible())
             enemy.makeInvisible();
 
@@ -118,7 +118,6 @@ public class EnemiesMainController : MonoBehaviour
 
     private GameDataTile ToTheTreasure(DummyController enemy, GameDataTile enemyTileData)
     {
-        Debug.Log("ToTheTreasure");
         if (tilemap.IsDoorOutsideTile(enemyTileData) && enemy.isVisible())
             enemy.makeInvisible();
 

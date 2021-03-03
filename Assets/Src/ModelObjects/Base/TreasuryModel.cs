@@ -5,14 +5,16 @@ namespace GameModels
 {
     public class TreasuryModel
     {
-        private int treasures;
-
         public int Treasures {
             get; set;
         }
 
+        public int MaxTreasures {
+            get; set;
+        }
+
         public TreasuryModel(int treasures) {
-            this.treasures = treasures;
+            this.Treasures = treasures;
         }
     }
 }

@@ -5,17 +5,20 @@ namespace GameModels
 {
     public class BaseModel
     {
-        protected float hitPoints, maxHitPoints = 5f;
-        protected float speed = 0.04f;
-        private float damage;
-        private float atackSpeed;
+        protected float hitPoints, maxHitPoints = 5f;        
+
         public bool Visible { get; set; } = true;
-        public bool GoingBack { get; set; } = false;
+        
+        public float HitPoints {
+            get { return hitPoints; }
+            set { hitPoints = value; }
+        }
 
-        public State state;
-
-        public float Damage { get => damage; set => damage = value; }
-        public float AtackSpeed { get => atackSpeed; set => atackSpeed = value; }
+        public float MaxHitPoints
+        {
+            get { return maxHitPoints; }
+            set { hitPoints = value; }
+        }
 
         public BaseModel(float customHitPoints = 0, float customDamage = 0)
         {
@@ -24,11 +27,6 @@ namespace GameModels
             {
                 maxHitPoints = hitPoints = customHitPoints;
             }
-
-            Damage = (customDamage >= 0) ? customDamage  : 0;
-            AtackSpeed = 1;
-
-            state = new State();
         }
 
         public float getCurrentHitPoints()
@@ -44,11 +42,6 @@ namespace GameModels
         public void inflictDamage(float damage)
         {
             this.hitPoints = (this.hitPoints < damage) ? 0 : this.hitPoints - damage;
-        }
-
-        public float getSpeed()
-        {
-            return this.speed;
-        }
+        }        
     }
 }

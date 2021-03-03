@@ -35,7 +35,7 @@ public class DoorController : MonoBehaviour
         
     }
 
-    public void Hit(BaseModel attacker)
+    public void Hit(BaseEnemyModel attacker)
     {
         // Изменение данных модели в связи с попаданием.
         Model.inflictDamage(attacker.Damage);

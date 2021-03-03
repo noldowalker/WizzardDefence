@@ -5,5 +5,6 @@ using UnityEngine;
 
 public interface IStealable
 {
-    int tryTakeTreasure(int amount);
+    int TryTakeTreasure(int amount);
+    void ReturnTreasure(int amount);
 }

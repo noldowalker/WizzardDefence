@@ -12,7 +12,11 @@ public class InterfaceController : MonoBehaviour
     void Awake()
     {
         HpText = GetComponentInChildren<HPTextController>();
+        if (HpText = null)
+            Debug.Log("No Hp text");
         TreasureText = GetComponentInChildren<TreasureTextController>();
+        if (TreasureText = null)
+            Debug.Log("No Treasure text");
     }
 
     // Update is called once per frame
@@ -22,10 +26,23 @@ public class InterfaceController : MonoBehaviour
     }
 
     public void SetHpText(string text) {
-        HpText.ChangeTextOn(text);
+        if(HpText == null)
+            HpText = GetComponentInChildren<HPTextController>();
+
+        if (HpText != null)
+            HpText.ChangeTextOn(text);
+        else
+            Debug.Log("No Hp text");
     }
 
-    public void SetTreasureText(string text) {
-        TreasureText.ChangeTextOn(text);
+    public void SetTreasureText(int amount) {
+        Debug.Log("amount = " + amount);
+        if (TreasureText == null)
+            TreasureText = GetComponentInChildren<TreasureTextController>();
+
+        if (TreasureText != null)
+            TreasureText.ChangeTextOn("Treasures: " + amount.ToString());
+        else
+            Debug.Log("No Treasure text");
     }
 }

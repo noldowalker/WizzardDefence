@@ -24,6 +24,7 @@ public class BaseEnemyController : MonoBehaviour
 
     // Делегаты для реакций на события с этим врагом
     public Action<Vector3, Vector3> onEnemyDestroy;
+    public Action<int> onEnemyDropTreasure;
     public Action<Vector3> onMoveEnded;
 
     void Awake()
@@ -46,7 +47,7 @@ public class BaseEnemyController : MonoBehaviour
 
     void Update()
     {
-        if (model.state.IsMoving() && !isShockedByHit) {
+        if (model.EnemyState.IsMoving() && !isShockedByHit) {
             MoveStep();
         }
     }
@@ -148,10 +149,10 @@ public class BaseEnemyController : MonoBehaviour
     {
         if (transform.position != targetForMoving)
         {
-            transform.position = Vector3.MoveTowards(transform.position, targetForMoving, model.getSpeed());
+            transform.position = Vector3.MoveTowards(transform.position, targetForMoving, model.GetSpeed());
         } else {
             SendEndMoveEvent();
-            model.state.SetIdle();
+            model.EnemyState.SetIdle();
         }
         
     }
@@ -165,31 +166,30 @@ public class BaseEnemyController : MonoBehaviour
     // Переводит цель в статус двигающейся и задает цель к которой надо идти в мировых координатах.
     public void Move(Vector3 positionTo)
     {
-        model.state.SetMoving();
+        model.EnemyState.SetMoving();
         targetForMoving = new Vector3 (positionTo.x, positionTo.y, transform.position.z);
     }
 
     public bool isMoving() {
-        return model.state.IsMoving();
+        return model.EnemyState.IsMoving();
     }
 
     public bool isIdle()
     {
-        return model.state.IsIdle();
+        return model.EnemyState.IsIdle();
     }
 
     public bool IsReadyToTurnBack()
     {
-        return model.state.IsReadyToTurnBack();
+        return model.EnemyState.IsReadyToTurnBack();
     }
         
     // Активирует всех делегатов подписанных на событие уничтожения противника.
     private void SendDeathEvent()
     {
-        if (onEnemyDestroy != null)
-        {
-            onEnemyDestroy(this.gameObject.transform.position, this.targetForMoving);
-        }
+        Debug.Log("SendDeathEvent");
+        onEnemyDestroy?.Invoke(gameObject.transform.position, targetForMoving);
+        onEnemyDropTreasure?.Invoke(model.TreasureBagCurrentTreasures);
     }
 
     // Активирует всех делегатов подписанных на событие окончания движения к заданной цели (как праивло тайл).
@@ -203,7 +203,7 @@ public class BaseEnemyController : MonoBehaviour
 
     // ToDo: сделай через интерфейс
     public void Attack(DoorController target) {
-        model.state.SetAttacking();
+        model.EnemyState.SetAttacking();
         targetForAttack = target;
         target.onDestroy += onTargetDestroy;
         StartCoroutine(Strike(model.AtackSpeed));
@@ -218,7 +218,7 @@ public class BaseEnemyController : MonoBehaviour
             yield return new WaitForSeconds(timeToWait);
         }
 
-        model.state.SetIdle();
+        model.EnemyState.SetIdle();
     }
          
     // Срабатывает на событии разрушения текущией цели - убираем цель.
@@ -230,7 +230,7 @@ public class BaseEnemyController : MonoBehaviour
     public void FindAndStealTreasure(IStealable target) {
         float stealingSpeed = 1f;
         makeInvisible();
-        model.state.SetStealing();
+        model.EnemyState.SetStealing();
         AwayFromField();
         StartCoroutine(StealProcess(stealingSpeed, target));
         
@@ -240,9 +240,11 @@ public class BaseEnemyController : MonoBehaviour
     private IEnumerator StealProcess(float timeToWait, IStealable target)
     {
         yield return new WaitForSeconds(timeToWait);
-        target.tryTakeTreasure(1);
-
-        model.state.SetReadyToTurnBack();
+        int treasuresTaken = target.TryTakeTreasure(model.TreasureBagCapacity);
+        int treasuresNotFitTheBag = model.PutTreasuresInTheBag(treasuresTaken);
+        Debug.Log("treasuresNotFitTheBag" + treasuresNotFitTheBag);
+        if (treasuresNotFitTheBag > 0) target.ReturnTreasure(treasuresNotFitTheBag);
+        model.EnemyState.SetReadyToTurnBack();
     }
 
     // Смещает объект вне поля
@@ -253,11 +255,10 @@ public class BaseEnemyController : MonoBehaviour
     public void SetReadyToMove() {
         makeVisible();
         model.GoingBack = true;
-        model.state.SetIdle();
+        model.EnemyState.SetIdle();
     }
 
     public bool IsGoingBack() {
-        Debug.Log("GoingBack = " + model.GoingBack);
         return model.GoingBack;
     }
 }
