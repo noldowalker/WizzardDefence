@@ -398,7 +398,6 @@ namespace GridTools.TilemapWithGameData
                     );
                     break;
                 default:
-                    Debug.Log("Не найдена следующая группа тайлов во время движения в дом.");
                     break;
                 ;
             }
@@ -435,7 +434,6 @@ namespace GridTools.TilemapWithGameData
                     );
                     break;
                 default:
-                    Debug.Log("Не найдена следующая группа тайлов во время движения из дома");
                     break;
                     ;
             }

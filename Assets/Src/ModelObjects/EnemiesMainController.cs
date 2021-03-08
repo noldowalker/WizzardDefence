@@ -28,11 +28,13 @@ public class EnemiesMainController : MonoBehaviour
             return;
         }
 
+        ItemsController items = scene.GetItemsController();
+
         List<GameDataTile> occupiedTiles = new List<GameDataTile>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
             enemy.onEnemyDestroy += HandleEnemyDeath;
-            enemy.onEnemyDropTreasure += GetComponentInParent<BaseSceneFinder>().GetTreasureController().ReturnTreasure;
+            enemy.onEnemyDestroy += items.CreateItem;
             enemy.onMoveEnded += HandleEnemyWithoutTarget;
             Vector3 enemyPosition = enemy.gameObject.transform.position;
             Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
@@ -131,16 +133,16 @@ public class EnemiesMainController : MonoBehaviour
         return tilemap.ToTheExit(enemyTileData);
     }
 
-    private void HandleEnemyDeath(Vector3 deathPoint, Vector3 targetPoint)
+    private void HandleEnemyDeath(BaseEnemyController dyingEnemy)
     {
-        Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(deathPoint);
+        Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(dyingEnemy.gameObject.transform.position);
         GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
 
         tilemap.MarkTileFree(enemyTileData);
 
-        if (targetPoint != null)
+        if (dyingEnemy.TargetForMoving != null)
         {
-            this.HandleEnemyWithoutTarget(targetPoint);
+            HandleEnemyWithoutTarget(dyingEnemy.TargetForMoving);
         }
         
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +12,7 @@ public class BaseEnemyController : MonoBehaviour
     private DummyAnimationController dummyAnimationController;
     private DummyModel model;
     private HitRegistrator hitRegitrator;
+    private int sortingOrder = 1;
     
     // Текущая цель для движения в виде глобальных координат (если есть)
     private Vector3 targetForMoving;
@@ -23,9 +24,11 @@ public class BaseEnemyController : MonoBehaviour
     private float shockTimeStep = 0.1f;
 
     // Делегаты для реакций на события с этим врагом
-    public Action<Vector3, Vector3> onEnemyDestroy;
-    public Action<int> onEnemyDropTreasure;
+    public Action<BaseEnemyController> onEnemyDestroy;
     public Action<Vector3> onMoveEnded;
+    public Vector3 TargetForMoving { get => targetForMoving; }
+    public int CurrentTreasures { get => model.TreasureBagCurrentTreasures; }
+    public int SortingOrder { get => sortingOrder; }
 
     void Awake()
     {
@@ -39,7 +42,7 @@ public class BaseEnemyController : MonoBehaviour
         colorOverlaper = GetComponentInChildren<ColorOverlaper>();
         dummyAnimationController = GetComponent<DummyAnimationController>();
 
-        model = new DummyModel(2f, 1f);
+        model = new DummyModel(1f, 1f);
         isShockedByHit = false;
 
         targetForAttack = null;
@@ -84,6 +87,7 @@ public class BaseEnemyController : MonoBehaviour
         } else {
             float deathTime = dummyAnimationController.PlayDeathAnimation();
             this.isShockedByHit = true;
+            SendDeathEvent();
             StartCoroutine(DeleteThis(deathTime));
         }
     }
@@ -105,19 +109,21 @@ public class BaseEnemyController : MonoBehaviour
 
     public void setInsideOrder()
     {
-        SetSortingOrder(10);
+        sortingOrder = 10;
+        SetSortingOrder(sortingOrder);
     }
 
     public void setOutsideOrder()
     {
-        SetSortingOrder(1);
+        sortingOrder = 1;
+        SetSortingOrder(sortingOrder);
     }
 
     private void SetSortingOrder(int order) {
         Array.ForEach (
-            this.GetComponentsInChildren<SpriteRenderer>(),
+            GetComponentsInChildren<SpriteRenderer>(),
             (SpriteRenderer sr) => {
-                sr.sortingOrder = 10;
+                sr.sortingOrder = order;
             }
         );
     }
@@ -125,7 +131,6 @@ public class BaseEnemyController : MonoBehaviour
     private IEnumerator DeleteThis(float timeToWait)
     {
         yield return new WaitForSeconds(timeToWait);
-        SendDeathEvent();
         Destroy(gameObject);        
     }
 
@@ -188,8 +193,7 @@ public class BaseEnemyController : MonoBehaviour
     private void SendDeathEvent()
     {
         Debug.Log("SendDeathEvent");
-        onEnemyDestroy?.Invoke(gameObject.transform.position, targetForMoving);
-        onEnemyDropTreasure?.Invoke(model.TreasureBagCurrentTreasures);
+        onEnemyDestroy?.Invoke(this);
     }
 
     // Активирует всех делегатов подписанных на событие окончания движения к заданной цели (как праивло тайл).
@@ -197,7 +201,7 @@ public class BaseEnemyController : MonoBehaviour
     {
         if (onMoveEnded != null)
         {
-            onMoveEnded(this.targetForMoving);
+            onMoveEnded(targetForMoving);
         }
     }
 
@@ -242,7 +246,6 @@ public class BaseEnemyController : MonoBehaviour
         yield return new WaitForSeconds(timeToWait);
         int treasuresTaken = target.TryTakeTreasure(model.TreasureBagCapacity);
         int treasuresNotFitTheBag = model.PutTreasuresInTheBag(treasuresTaken);
-        Debug.Log("treasuresNotFitTheBag" + treasuresNotFitTheBag);
         if (treasuresNotFitTheBag > 0) target.ReturnTreasure(treasuresNotFitTheBag);
         model.EnemyState.SetReadyToTurnBack();
     }

@@ -22,6 +22,11 @@ public class BaseSceneFinder : MonoBehaviour
         return GetComponentInChildren<GameGridController>();
     }
 
+    public ItemsController GetItemsController()
+    {
+        return GetComponentInChildren<ItemsController>();
+    }
+
     public InterfaceController GetInterfaceController()
     {
         return GetComponentInChildren<InterfaceController>();
