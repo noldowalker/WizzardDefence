@@ -33,7 +33,7 @@ public class EnemiesMainController : MonoBehaviour
         {
             enemy.onEnemyDestroy += HandleEnemyDeath;
             enemy.onEnemyDropTreasure += GetComponentInParent<BaseSceneFinder>().GetTreasureController().ReturnTreasure;
-            enemy.onMoveEnded += this.HandleEnemyWithoutTarget;
+            enemy.onMoveEnded += HandleEnemyWithoutTarget;
             Vector3 enemyPosition = enemy.gameObject.transform.position;
             Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
             GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
@@ -102,20 +102,7 @@ public class EnemiesMainController : MonoBehaviour
         enemy.AlignToCoords(tile.CenterWorldPlace);
         enemy.SetReadyToMove();
     }
-
-    private GameDataTile ToTheExit(DummyController enemy, GameDataTile enemyTileData) {
-        if (tilemap.IsDoorInsideTile(enemyTileData) && enemy.isVisible())
-            enemy.makeInvisible();
-
-        if (tilemap.IsDoorOutsideTile(enemyTileData) && !enemy.isVisible())
-        {
-            enemy.makeVisible();
-            enemy.setOutsideOrder();
-        }
-
-        return tilemap.ToTheExit(enemyTileData);
-    }
-
+    
     private GameDataTile ToTheTreasure(DummyController enemy, GameDataTile enemyTileData)
     {
         if (tilemap.IsDoorOutsideTile(enemyTileData) && enemy.isVisible())
@@ -128,6 +115,20 @@ public class EnemiesMainController : MonoBehaviour
         }
 
         return tilemap.ToTheTreasure(enemyTileData);
+    }
+
+    private GameDataTile ToTheExit(DummyController enemy, GameDataTile enemyTileData)
+    {
+        if (tilemap.IsDoorInsideTile(enemyTileData) && enemy.isVisible())
+            enemy.makeInvisible();
+
+        if (tilemap.IsDoorOutsideTile(enemyTileData) && !enemy.isVisible())
+        {
+            enemy.makeVisible();
+            enemy.setOutsideOrder();
+        }
+
+        return tilemap.ToTheExit(enemyTileData);
     }
 
     private void HandleEnemyDeath(Vector3 deathPoint, Vector3 targetPoint)

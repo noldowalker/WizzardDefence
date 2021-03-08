@@ -414,28 +414,28 @@ namespace GridTools.TilemapWithGameData
             {
 
                 case int x when tileFrom.LocalPlace.x < this.doorInsideX:
-                    tileTo = FindPathTo(
+                    tileTo = FindBackwardPathTo(
                         tileFrom,
                         GetClosestFreeTileInList(tileFrom, doorInsideTiles),
                         GetClosestAnyTileInList(tileFrom, doorInsideTiles)
                     );
                     break;
                 case int x when tileFrom.LocalPlace.x < this.doorOutsideX:
-                    tileTo = FindPathTo(
+                    tileTo = FindBackwardPathTo(
                         tileFrom,
                         GetClosestFreeTileInList(tileFrom, doorOutsideTiles),
                         GetClosestAnyTileInList(tileFrom, doorOutsideTiles)
                     );
                     break;
                 case int x when tileFrom.LocalPlace.x < spawnX:
-                    tileTo = FindPathTo(
+                    tileTo = FindBackwardPathTo(
                         tileFrom,
                         GetClosestFreeTileInList(tileFrom, spawnTiles),
                         GetClosestAnyTileInList(tileFrom, spawnTiles)
                     );
                     break;
                 default:
-                    Debug.Log("Не найдена следующая группа тайлов во время движения в дом.");
+                    Debug.Log("Не найдена следующая группа тайлов во время движения из дома");
                     break;
                     ;
             }
@@ -466,6 +466,38 @@ namespace GridTools.TilemapWithGameData
                 ResetTileVisited();
 
                 nextTile = checkPathForNexTile(pathFinder.AroundWithDiagonalSearchForTile(tileFrom, tileToAny));
+
+                return nextTile;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        // Ищет путь ко выходу 2мя разными способами. Один в обход занятых клеток, второй по кратчайшему без занятых.
+        public GameDataTile FindBackwardPathTo(GameDataTile tileFrom, GameDataTile tileToFree, GameDataTile tileToAny)
+        {
+
+            if (tilesData.ContainsKey(tileFrom.Name) && doorOutsideTiles.Count != 0)
+            {
+                ResetTileCount();
+                ResetTileVisited();
+
+                GameDataTile nextTile = null;
+
+                if (tileToFree != null)
+                {
+                    nextTile = checkPathForNexTile(pathFinder.BackwardStraitWithDiagonalSearchForTile(tileFrom, tileToFree));
+
+                    if (nextTile != null)
+                        return nextTile;
+                }
+
+                ResetTileCount();
+                ResetTileVisited();
+
+                nextTile = checkPathForNexTile(pathFinder.BackwardAroundWithDiagonalSearchForTile(tileFrom, tileToAny));
 
                 return nextTile;
             }
