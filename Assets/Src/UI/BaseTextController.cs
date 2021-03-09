@@ -9,7 +9,6 @@ public class BaseTextController : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        Debug.Log("Text initiated!");
         text = GetComponent<Text>();
         text.color = Color.white;
     }

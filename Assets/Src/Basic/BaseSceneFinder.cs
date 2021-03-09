@@ -36,4 +36,9 @@ public class BaseSceneFinder : MonoBehaviour
     {
         return GetComponent<TreasuryController>();
     }
+
+    public EventSystem GetEventSystem()
+    {
+        return GetComponent<EventSystem>();
+    }
 }
