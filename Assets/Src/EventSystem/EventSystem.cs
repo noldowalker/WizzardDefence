@@ -3,33 +3,55 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EventSystem : MonoBehaviour
+namespace Wizard.EventSystem
 {
-    public static EventSystem self;
-    public enum EventType {
-        ui
-    };
-
-    protected Action<GameObject> uiEvents;
-    protected Dictionary<EventType, Action<GameObject>> events;
-
-    void Awake()
+    public class EventSystem : MonoBehaviour
     {
-        self = this;
-        events = new Dictionary<EventType, Action<GameObject>>();
+        private static EventSystem self;
 
-        events.Add(EventType.ui, uiEvents);
-    }
+        private Dictionary<EventTypes.UI, Action<GameObject>> uiEvents;
 
-    public bool SendEvent(EventType type, GameObject actor) {
-        events[type]?.Invoke(actor);
+        public static EventSystem Instance { get => self; }
 
-        return true;
-    }
+        void Awake()
+        {
+            self = this;
+            uiEvents = new Dictionary<EventTypes.UI, Action<GameObject>>();
 
-    public bool Subscribe(EventType type, Action<GameObject> callback) {
-        events[type] += callback;
+            foreach (EventTypes.UI currentEvent in Enum.GetValues(typeof(EventTypes.UI)))
+            {
+                uiEvents.Add(currentEvent, null);
+            }
+        }
 
-        return true;
+        public bool FireUiEvent(EventTypes.UI type, GameObject actor)
+        {
+            uiEvents[type]?.Invoke(actor);
+
+            return true;
+        }
+
+        public void SubscribeUiEvent(EventTypes.UI type, Action<GameObject> callback)
+        {
+            if (IsAllowToSubscribe(callback.Target))
+                uiEvents[type] += callback;
+        }
+               
+        public bool UnsubscribeUiEvent(EventTypes.UI type, Action<GameObject> callback)
+        {
+            uiEvents[type] -= callback;
+
+            return true;
+        }
+
+        private bool IsAllowToSubscribe(object target)
+        {
+            if (!(target is ISubscribable)) {
+                Debug.Log(target + " not implements ISubscribable interface and can't subscribe.");
+                return false;
+            } else {
+                return true;
+            }
+        }
     }
 }
