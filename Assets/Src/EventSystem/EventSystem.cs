@@ -9,40 +9,26 @@ namespace Wizard.EventSystem
     {
         private static EventSystem self;
 
-        private Dictionary<EventTypes.UI, Action<GameObject>> uiEvents;
-
+        private UiEventsManager ui;
         public static EventSystem Instance { get => self; }
 
         void Awake()
         {
             self = this;
-            uiEvents = new Dictionary<EventTypes.UI, Action<GameObject>>();
-
-            foreach (EventTypes.UI currentEvent in Enum.GetValues(typeof(EventTypes.UI)))
-            {
-                uiEvents.Add(currentEvent, null);
-            }
+            ui = new UiEventsManager();
         }
 
-        public bool FireUiEvent(EventTypes.UI type, GameObject actor)
-        {
-            uiEvents[type]?.Invoke(actor);
+        
+        public bool FireUiEvent(EventTypes.UI type, string text) => ui.FireUiEvent(type, text);
 
-            return true;
-        }
+        public bool UnsubscribeUiEvent(EventTypes.UI type, Action<string> callback) => ui.UnsubscribeUiEvent(type, callback);
 
-        public void SubscribeUiEvent(EventTypes.UI type, Action<GameObject> callback)
+        public void SubscribeUiEvent(EventTypes.UI type, Action<string> callback)
         {
             if (IsAllowToSubscribe(callback.Target))
-                uiEvents[type] += callback;
+                ui.SubscribeUiEvent(type, callback);
         }
-               
-        public bool UnsubscribeUiEvent(EventTypes.UI type, Action<GameObject> callback)
-        {
-            uiEvents[type] -= callback;
 
-            return true;
-        }
 
         private bool IsAllowToSubscribe(object target)
         {

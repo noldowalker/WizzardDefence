@@ -21,7 +21,7 @@ public class BaseEnemyController : MonoBehaviour
     // переменные механики шока от попадания
     private bool isShockedByHit;
     private float shockTime = 0f;
-    private float shockTimeStep = 0.1f;
+    private float shockTimeStep = 0.2f;
 
     // Делегаты для реакций на события с этим врагом
     public Action<BaseEnemyController> onEnemyDestroy;

@@ -15,6 +15,7 @@ namespace GameModels
 
         public TreasuryModel(int treasures) {
             this.Treasures = treasures;
+            this.MaxTreasures = treasures;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GameModels;
+using Wizard.EventSystem;
 
 public class TreasuryController : MonoBehaviour, IStealable
 {
@@ -14,23 +15,23 @@ public class TreasuryController : MonoBehaviour, IStealable
     void Awake()
     {
         treasury = new TreasuryModel(10);
-        ui = GetComponentInParent<BaseSceneFinder>().GetInterfaceController();
-        if (ui != null) {
-            TreasuresTaken += ui.SetTreasureText;
-            TreasuresTaken?.Invoke(treasury.Treasures);
-        }
+        ui = GetComponentInParent<BaseSceneFinder>().GetInterfaceController();        
     }
 
     public int TryTakeTreasure(int amount) {
         int treasuresToTake = (amount > treasury.Treasures) ? treasury.Treasures : amount;
         treasury.Treasures -= treasuresToTake;
-        TreasuresTaken?.Invoke(treasury.Treasures);
+        EventSystem.Instance.FireUiEvent(EventTypes.UI.TreasuresAmountChanged, GetTreasureMessage());
         return treasuresToTake;
     }
 
     public void ReturnTreasure(int amount)
     {
         treasury.Treasures += amount;
-        TreasuresTaken?.Invoke(treasury.Treasures);
+        EventSystem.Instance.FireUiEvent(EventTypes.UI.TreasuresAmountChanged, GetTreasureMessage());
+    }
+
+    public string GetTreasureMessage() {
+        return "Treasures: " + treasury.Treasures + "/" + treasury.MaxTreasures;
     }
 }

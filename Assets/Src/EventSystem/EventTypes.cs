@@ -7,7 +7,9 @@ namespace Wizard.EventSystem
     {
         public enum UI
         {
-            Test
+            Test,
+            DoorHPChanged,
+            TreasuresAmountChanged
         }
     }
 }

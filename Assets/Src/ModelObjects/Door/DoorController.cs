@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GameModels;
+using Wizard.EventSystem;
 
 public class DoorController : MonoBehaviour
 {
@@ -21,12 +22,18 @@ public class DoorController : MonoBehaviour
 
     void Awake()
     {
+        Model = new DoorModel(5f);
+    }
+
+    private void Start()
+    {
         colorOverlaper = GetComponentInChildren<ColorOverlaper>();
         hits = GetComponentsInChildren<ParticleSystem>();
         foreach (ParticleSystem hit in hits) {
             hit.Stop();
         }
-        Model = new DoorModel(1f);
+
+        SendHitEvent();
     }
 
     // Update is called once per frame
@@ -85,11 +92,12 @@ public class DoorController : MonoBehaviour
     }
 
     public string GetHpText() {
-        return "" + Model.getCurrentHitPoints() + "/" + Model.getMaxHitPoints();
+        return "Door structure: " + Model.getCurrentHitPoints() + "/" + Model.getMaxHitPoints();
     }
     // Активирует всех делегатов подписанных на событие удара в дверь
     private void SendHitEvent()
     {
-        onHit?.Invoke(GetHpText());
+        Debug.Log("Hit!");
+        EventSystem.Instance.FireUiEvent(EventTypes.UI.DoorHPChanged, GetHpText());
     }
 }

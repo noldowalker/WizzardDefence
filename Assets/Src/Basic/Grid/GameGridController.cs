@@ -27,8 +27,6 @@ namespace GridTools.TilemapWithGameData
 
             BaseSceneFinder finder = GetComponentInParent<BaseSceneFinder>();
             InterfaceController ui = finder.GetInterfaceController();
-            door.onHit += ui.SetHpText;
-            ui.SetHpText(door.GetHpText());
         }
 
         void Update()

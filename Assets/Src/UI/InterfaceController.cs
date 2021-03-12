@@ -9,11 +9,8 @@ public class InterfaceController : MonoBehaviour
     private HPTextController HpText { get; set; }
     private TreasureTextController TreasureText { get; set; }
 
-    void Awake()
+    private void Start()
     {
-        HpText = GetComponentInChildren<HPTextController>();
-        if (HpText = null)
-            Debug.Log("No Hp text");
         TreasureText = GetComponentInChildren<TreasureTextController>();
         if (TreasureText = null)
             Debug.Log("No Treasure text");
@@ -23,16 +20,6 @@ public class InterfaceController : MonoBehaviour
     void Update()
     {
         
-    }
-
-    public void SetHpText(string text) {
-        if(HpText == null)
-            HpText = GetComponentInChildren<HPTextController>();
-
-        if (HpText != null)
-            HpText.ChangeTextOn(text);
-        else
-            Debug.Log("No Hp text");
     }
 
     public void SetTreasureText(int amount) {

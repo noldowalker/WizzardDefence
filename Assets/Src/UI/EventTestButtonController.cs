@@ -21,6 +21,6 @@ public class EventTestButtonController : MonoBehaviour
 
     void onClickEvent()
     {
-        EventSystem.Instance.FireUiEvent(EventTypes.UI.Test, this.gameObject);
+        EventSystem.Instance.FireUiEvent(EventTypes.UI.Test, "CLIK BY "+this.gameObject.name);
     }
 }
