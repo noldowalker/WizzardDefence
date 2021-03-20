@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using GridTools.PathFinding;
+using Wizard.Events;
+using Wizard.GameField;
+using Wizard.GameField.PathFinding;
 using System.Linq;
 
-namespace GridTools.TilemapWithGameData
+namespace Wizard.GameField
 {
     public class GameFieldController : MonoBehaviour
     {
@@ -78,7 +80,8 @@ namespace GridTools.TilemapWithGameData
             Vector3 worldPoint = ray.GetPoint(-ray.origin.z / ray.direction.z);
             Vector3Int position = grid.WorldToCell(worldPoint);
 
-            SendEvent(worldPoint);
+            if (position.x >= doorOutsideX)
+                SendEvent(worldPoint);
         }
 
         // Меняет плитку тайла (отладочная функция)
@@ -90,7 +93,7 @@ namespace GridTools.TilemapWithGameData
         // Активирует всех делегатов подписанных на событие клика по тайлу.
         private void SendEvent(Vector3 worldPoint)
         {
-            onTileClick?.Invoke(worldPoint);
+            EventSystem.Instance.FireGameFieldEvent(EventTypes.GameFieldPointed.Click, worldPoint);
         }
 
         // Скрывает спрайты тайлов, оставляя только их коллайдеры.

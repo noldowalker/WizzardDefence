@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-namespace GridTools.TilemapWithGameData
+namespace Wizard.GameField
 {
     public class GameDataTile
     {

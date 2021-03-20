@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using GridTools.TilemapWithGameData;
+using Wizard.GameField;
+using Wizard.Log;
 
 public class EnemiesMainController : MonoBehaviour
 {
@@ -50,7 +51,7 @@ public class EnemiesMainController : MonoBehaviour
     }
 
     // Действия которые запускаются каждый кадр
-    void Update()
+    public void UpdateStep()
     {
         List<GameDataTile> occupiedTiles = new List<GameDataTile>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using GridTools.TilemapWithGameData;
+using Wizard.GameField;
 
 public class InterfaceController : MonoBehaviour
 {

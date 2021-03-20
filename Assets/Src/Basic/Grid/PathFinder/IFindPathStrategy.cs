@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using GridTools.TilemapWithGameData;
+using Wizard.GameField;
 
-namespace GridTools.PathFinding
+namespace Wizard.GameField.PathFinding
 {
     public interface IFindPathStrategy
     {

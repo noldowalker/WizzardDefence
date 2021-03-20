@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace Wizard.EventSystem
+namespace Wizard.Events
 {
     public static class EventTypes
     {
@@ -10,6 +10,11 @@ namespace Wizard.EventSystem
             Test,
             DoorHPChanged,
             TreasuresAmountChanged
+        }
+
+        public enum GameFieldPointed
+        {
+            Click
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Wizard.EventSystem;
+using Wizard.Events;
 
 public class EventTestTextController : BaseTextController, ISubscribable
 {

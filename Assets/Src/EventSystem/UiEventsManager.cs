@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Wizard.EventSystem
+namespace Wizard.Events
 {
     public class UiEventsManager
     {

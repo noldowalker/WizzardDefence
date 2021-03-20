@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Wizard.EventSystem;
+using Wizard.Events;
 
 public class TreasureTextController : BaseTextController, ISubscribable
 {

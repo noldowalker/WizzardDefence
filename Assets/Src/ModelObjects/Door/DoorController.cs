@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GameModels;
-using Wizard.EventSystem;
+using Wizard.Events;
 
 public class DoorController : MonoBehaviour
 {

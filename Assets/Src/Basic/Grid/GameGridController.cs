@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GridTools.TilemapWithGameData
+namespace Wizard.GameField
 {
     public class GameGridController : MonoBehaviour
     {

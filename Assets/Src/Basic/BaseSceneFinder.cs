@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using GridTools.TilemapWithGameData;
+using Wizard.Events;
+using Wizard.GameField;
+using Wizard.GameField.PathFinding;
+using Wizard.Log;
 
 public class BaseSceneFinder : MonoBehaviour
 {
@@ -40,5 +43,10 @@ public class BaseSceneFinder : MonoBehaviour
     public DoorController GetDoorController()
     {
         return GetComponentInChildren<DoorController>();
+    }
+
+    public EventSystem GetEventSystem()
+    {
+        return GetComponent<EventSystem>();
     }
 }

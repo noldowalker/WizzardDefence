@@ -1,7 +1,10 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public interface ISubscribable
+namespace Wizard.Events
 {
-    void Unsubscribe();
+    public interface ISubscribable
+    {
+        void Unsubscribe();
+    }
 }

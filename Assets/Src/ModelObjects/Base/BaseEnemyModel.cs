@@ -5,7 +5,7 @@ namespace GameModels
 {
     public class BaseEnemyModel : BaseModel
     {
-        protected float speed = 0.01f;
+        protected float speed = 0.05f;
         protected float damage;
         protected float atackSpeed;
         protected int treasureBagCapacity = 1;

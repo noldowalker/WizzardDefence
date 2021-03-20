@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GameModels;
-using GridTools.TilemapWithGameData;
+using Wizard.GameField;
+using Wizard.Events;
 
-public class MageMainController : MonoBehaviour
+public class MageMainController : MonoBehaviour, ISubscribable
 {
 
     public GameFieldController tilemapForClicksClass;
@@ -14,13 +15,19 @@ public class MageMainController : MonoBehaviour
     private MageAnimationController animationController;
     private Vector3 projectileLaunchingPoint;
     private State state;
+    private EventSystem events;
 
-    void Awake()
+    void Start()
     {
+        EventSystem.Instance.SubscribeGameFieldEvent(EventTypes.GameFieldPointed.Click, HandleTileClick);
         tilemapForClicksClass.onTileClick += HandleTileClick;
         animationController = GetComponentInChildren<MageAnimationController>();
         projectileLaunchingPoint = transform.Find("LaunchingPoint").position;
         state = new State();
+    }
+
+    public void Unsubscribe() {
+        EventSystem.Instance.UnsubscribeGameFieldEvent(EventTypes.GameFieldPointed.Click, HandleTileClick);
     }
 
     private void HandleTileClick(Vector3 clickPosition){
