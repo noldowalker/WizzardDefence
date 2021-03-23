@@ -5,7 +5,8 @@ namespace GameModels
 {
     public class BaseModel
     {
-        protected float hitPoints, maxHitPoints = 5f;        
+        protected float hitPoints;        
+        protected float maxHitPoints = 5f;        
 
         public bool Visible { get; set; } = true;
         

@@ -7,31 +7,31 @@ using Wizard.Events;
 
 public class TreasuryController : MonoBehaviour, IStealable
 {
-    private static TreasuryModel treasury;
+    private static Treasury treasury;
     private InterfaceController ui;
 
     public Action<int> TreasuresTaken { get; set; }
     
     void Awake()
     {
-        treasury = new TreasuryModel(10);
+        treasury = Resources.Load<Treasury>("ScriptableObjects/PlayerSide/Treasury");
         ui = GetComponentInParent<BaseSceneFinder>().GetInterfaceController();        
     }
 
     public int TryTakeTreasure(int amount) {
-        int treasuresToTake = (amount > treasury.Treasures) ? treasury.Treasures : amount;
-        treasury.Treasures -= treasuresToTake;
+        int treasuresToTake = treasury.TryTakeTreasure(amount);
         EventSystem.Instance.FireUiEvent(EventTypes.UI.TreasuresAmountChanged, GetTreasureMessage());
+
         return treasuresToTake;
     }
 
     public void ReturnTreasure(int amount)
     {
-        treasury.Treasures += amount;
+        treasury.ReturnTreasure(amount);
         EventSystem.Instance.FireUiEvent(EventTypes.UI.TreasuresAmountChanged, GetTreasureMessage());
     }
 
     public string GetTreasureMessage() {
-        return "Treasures: " + treasury.Treasures + "/" + treasury.MaxTreasures;
+        return "Treasures: " + treasury.CurrentTreasures + "/" + treasury.MaxTreasures;
     }
 }

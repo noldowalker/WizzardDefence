@@ -1,12 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace GameModels
 {
-    public class DoorModel : BaseModel
+    [CreateAssetMenu(fileName = "Door", menuName = "Wizzard/Player Side/Door", order = 52)]
+    public class DoorModel : ScriptableObject
     {
-        public DoorModel(float customHitPoints) : base(customHitPoints)
+        [SerializeField]
+        protected float hitPoints = 5f;
+        [SerializeField]
+        protected float maxHitPoints = 5f;
+
+        public float CurrentHitPoints
         {
+            get => this.hitPoints;
         }
+
+        public float MaxHitPoints
+        {
+            get => this.maxHitPoints;
+        }
+
+        public void inflictDamage(float damage)
+        {
+            this.hitPoints = (this.hitPoints < damage) ? 0 : this.hitPoints - damage;
+        }
+
     }
 }

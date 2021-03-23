@@ -22,7 +22,7 @@ public class DoorController : MonoBehaviour
 
     void Awake()
     {
-        Model = new DoorModel(5f);
+        Model = Resources.Load<DoorModel>("ScriptableObjects/PlayerSide/Door");
     }
 
     private void Start()
@@ -47,7 +47,7 @@ public class DoorController : MonoBehaviour
         // Изменение данных модели в связи с попаданием.
         Model.inflictDamage(attacker.Damage);
         //Debug.Log("Door HP: " + Model.getCurrentHitPoints());
-        if (Model.getCurrentHitPoints() > 0)
+        if (Model.CurrentHitPoints > 0)
         {
             ParticleSystem hit = getRandomHit();
             if (hit != null) {
@@ -92,8 +92,9 @@ public class DoorController : MonoBehaviour
     }
 
     public string GetHpText() {
-        return "Door structure: " + Model.getCurrentHitPoints() + "/" + Model.getMaxHitPoints();
+        return "Door structure: " + Model.CurrentHitPoints + "/" + Model.MaxHitPoints;
     }
+
     // Активирует всех делегатов подписанных на событие удара в дверь
     private void SendHitEvent()
     {
