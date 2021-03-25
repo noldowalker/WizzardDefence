@@ -548,7 +548,7 @@ namespace Wizard.GameField
             CheckTransparancy();
         }
 
-        private void CheckTransparancy() {
+        public void CheckTransparancy() {
             bool result = false;
             foreach (GameDataTile tile in transparentDetectionTiles) {
                 result = tile.IsOccupied() || tile.IsTarget();

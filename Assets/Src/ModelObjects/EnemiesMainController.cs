@@ -10,10 +10,11 @@ public class EnemiesMainController : MonoBehaviour
 {
     protected BaseSceneFinder scene;
     protected GameFieldController tilemap;
+    protected GameFieldMediator fieldMediator;
     protected LogController log;
  
 
-    void Awake()
+    void Start()
     {
         scene = GetComponentInParent<BaseSceneFinder>();
         if (scene == null)
@@ -29,23 +30,25 @@ public class EnemiesMainController : MonoBehaviour
             return;
         }
 
+        fieldMediator = scene.GetComponentInChildren<GameFieldMediator>();
+
         ItemsController items = scene.GetItemsController();
 
-        List<GameDataTile> occupiedTiles = new List<GameDataTile>();
+        List<Vector3> occupationPoints = new List<Vector3>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
             enemy.onEnemyDestroy += HandleEnemyDeath;
             enemy.onEnemyDestroy += items.CreateItem;
             enemy.onMoveEnded += HandleEnemyWithoutTarget;
             Vector3 enemyPosition = enemy.gameObject.transform.position;
-            Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
-            GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
-            enemy.AlignToCoords(enemyTileData.CenterWorldPlace);
-            occupiedTiles.Add(enemyTileData);
+            Vector3 newPosition = fieldMediator.GetTileCenterByPosition(enemyPosition);
+            Debug.Log("newPosition = " + newPosition);
+            enemy.AlignToCoords(newPosition);
+            occupationPoints.Add(enemyPosition);
         }
 
-        if (occupiedTiles.Count > 0) {
-            tilemap.ChangeTilesOccupationAccorgingTileData(occupiedTiles);
+        if (occupationPoints.Count > 0) {
+            fieldMediator.MarkTilesOccupationByPositions(occupationPoints);
         }
         
     }
@@ -60,6 +63,7 @@ public class EnemiesMainController : MonoBehaviour
             if (currentTile != null)
                 occupiedTiles.Add(currentTile);            
         }
+
         tilemap.ChangeTilesOccupationAccorgingTileData(occupiedTiles);
     }
 
@@ -78,6 +82,7 @@ public class EnemiesMainController : MonoBehaviour
     }
 
     private void IdleUpdate(DummyController enemy, GameDataTile enemyTileData) {
+        //TODO: начинай дальше отсюда, выноси проверки тайлов в медиатор, а передавай точку.
         if (tilemap.IsDoorOutsideTile(enemyTileData) && !tilemap.IsDoorBroken())
         {
             enemy.Attack(tilemap.door);
