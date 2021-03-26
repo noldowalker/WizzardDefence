@@ -5,11 +5,11 @@ using System.Linq;
 using UnityEngine;
 using Wizard.GameField;
 using Wizard.Log;
+using Wizard.Events;
 
-public class EnemiesMainController : MonoBehaviour
+public class EnemiesMainController : MonoBehaviour, ISubscribable
 {
     protected BaseSceneFinder scene;
-    protected GameFieldController tilemap;
     protected GameFieldMediator fieldMediator;
     protected LogController log;
  
@@ -23,26 +23,21 @@ public class EnemiesMainController : MonoBehaviour
             return;
         }
 
-        tilemap = scene.GetComponentInChildren<GameFieldController>();
-        if (tilemap == null)
+        fieldMediator = scene.GetComponentInChildren<GameFieldMediator>();
+        if (fieldMediator == null)
         {
-            LogController.ShowError(LogController.Errors.GameFieldControllerIsNull);
+            LogController.ShowError(LogController.Errors.GameFieldMediatorIsNull);
             return;
         }
-
-        fieldMediator = scene.GetComponentInChildren<GameFieldMediator>();
-
-        ItemsController items = scene.GetItemsController();
 
         List<Vector3> occupationPoints = new List<Vector3>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
-            enemy.onEnemyDestroy += HandleEnemyDeath;
-            enemy.onEnemyDestroy += items.CreateItem;
-            enemy.onMoveEnded += HandleEnemyWithoutTarget;
-            Vector3 enemyPosition = enemy.gameObject.transform.position;
-            Vector3 newPosition = fieldMediator.GetTileCenterByPosition(enemyPosition);
-            Debug.Log("newPosition = " + newPosition);
+            EventSystem.Instance.SubscribeActorBasedEvent(EventTypes.ActorBased.Destroy, HandleEnemyDeath);
+            EventSystem.Instance.SubscribeActorBasedEvent(EventTypes.ActorBased.MoveEnd, MarkCurrentEnemyTileAsUntargeted);
+
+            Vector3 enemyPosition = enemy.GetPosition();
+            Vector3 newPosition = fieldMediator.GetTileCenterByPosition(enemy.GetPosition());
             enemy.AlignToCoords(newPosition);
             occupationPoints.Add(enemyPosition);
         }
@@ -53,112 +48,123 @@ public class EnemiesMainController : MonoBehaviour
         
     }
 
+    public void Unsubscribe() {
+        EventSystem.Instance.UnsubscribeActorBasedEvent(EventTypes.ActorBased.Destroy, HandleEnemyDeath);
+        EventSystem.Instance.UnsubscribeActorBasedEvent(EventTypes.ActorBased.MoveEnd, MarkCurrentEnemyTileAsUntargeted);
+    }
+
+    void OnDestroy()
+    {
+        Unsubscribe();
+    }
+
     // Действия которые запускаются каждый кадр
     public void UpdateStep()
     {
-        List<GameDataTile> occupiedTiles = new List<GameDataTile>();
+        List<Vector3> occupationPoints = new List<Vector3>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
-            GameDataTile currentTile = EnemyUpdate(enemy);
-            if (currentTile != null)
-                occupiedTiles.Add(currentTile);            
+            EnemyUpdate(enemy);
+            occupationPoints.Add(enemy.GetPosition());            
         }
 
-        tilemap.ChangeTilesOccupationAccorgingTileData(occupiedTiles);
+        fieldMediator.MarkTilesOccupationByPositions(occupationPoints);
     }
 
-    private GameDataTile EnemyUpdate(DummyController enemy) {
-        Vector3 enemyPosition = enemy.gameObject.transform.position;
-        Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(enemyPosition);
-        GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
-
+    private void EnemyUpdate(DummyController enemy) {
         if (enemy.isIdle())
-            IdleUpdate(enemy, enemyTileData);
+            IdleUpdate(enemy);
 
         if (enemy.IsReadyToTurnBack())
             GoBackUpdate(enemy);
-
-        return enemyTileData;
     }
 
-    private void IdleUpdate(DummyController enemy, GameDataTile enemyTileData) {
-        //TODO: начинай дальше отсюда, выноси проверки тайлов в медиатор, а передавай точку.
-        if (tilemap.IsDoorOutsideTile(enemyTileData) && !tilemap.IsDoorBroken())
-        {
-            enemy.Attack(tilemap.door);
+    private void IdleUpdate(DummyController enemy) {
+        if (
+            fieldMediator.IsPointInDoorOutsideZone(enemy.GetPosition()) 
+            && !fieldMediator.IsDoorBroken()
+        ) {
+            //TODO: меньше связности, сделай через IAttakable интерфейс или типа того.
+            enemy.Attack(fieldMediator.GetDoorActor());
             return;
         }
         
-        if (tilemap.IsHouseInterierTile(enemyTileData) && !enemy.IsGoingBack()) {
+        if (
+            fieldMediator.IsPointInInterierEnterZone(enemy.GetPosition()) 
+            && !enemy.IsGoingBack()
+        ) {
+            // TODO: вынести в экшен... наверное?
             enemy.FindAndStealTreasure(scene.GetTreasureController());
             return;
         }
 
-        GameDataTile nextTile = null;
-        
-        nextTile = (enemy.IsGoingBack()) ? ToTheExit(enemy, enemyTileData) : ToTheTreasure(enemy, enemyTileData);
+        Vector3 nextPoint = (enemy.IsGoingBack()) ? ToTheExit(enemy) : ToTheTreasure(enemy);
 
-        if (nextTile != null)
-        {
-            tilemap.MarkTileAsTarget(nextTile);
-            enemy.Move(nextTile.CenterWorldPlace);
-        }
+        if (nextPoint.x != Vector3.negativeInfinity.x)
+            enemy.Move(nextPoint);
+        
     }
 
     private void GoBackUpdate(DummyController enemy) {
-        GameDataTile tile = tilemap.GetAnyFreeTileFromHouseInterierTiles();
-        enemy.AlignToCoords(tile.CenterWorldPlace);
+        Vector3 newPoint = fieldMediator.GetCenterOfAnyFreeTileFromHouseInterierTiles();
+        if (newPoint.x == Vector3.negativeInfinity.x)
+            return;
+
+        enemy.AlignToCoords(newPoint);
         enemy.SetReadyToMove();
     }
     
-    private GameDataTile ToTheTreasure(DummyController enemy, GameDataTile enemyTileData)
+    private Vector3 ToTheTreasure(DummyController enemy)
     {
-        if (tilemap.IsDoorOutsideTile(enemyTileData) && enemy.isVisible())
+        if (
+            fieldMediator.IsPointInDoorOutsideZone(enemy.GetPosition()) 
+            && enemy.isVisible()
+        )
             enemy.makeInvisible();
 
-        if (tilemap.IsDoorInsideTile(enemyTileData) && !enemy.isVisible())
-        {
+        if (
+            fieldMediator.IsPointInDoorInsideZone(enemy.GetPosition()) 
+            && !enemy.isVisible()
+        ) {
             enemy.makeVisible();
             enemy.setInsideOrder();
         }
 
-        return tilemap.ToTheTreasure(enemyTileData);
+        return fieldMediator.GetNextWaypointToTheTreasure(enemy.GetPosition());
     }
 
-    private GameDataTile ToTheExit(DummyController enemy, GameDataTile enemyTileData)
+    private Vector3 ToTheExit(DummyController enemy)
     {
-        if (tilemap.IsDoorInsideTile(enemyTileData) && enemy.isVisible())
+        if (
+            fieldMediator.IsPointInDoorInsideZone(enemy.GetPosition()) 
+            && enemy.isVisible()
+        )
             enemy.makeInvisible();
 
-        if (tilemap.IsDoorOutsideTile(enemyTileData) && !enemy.isVisible())
-        {
+        if (
+            fieldMediator.IsPointInDoorOutsideZone(enemy.GetPosition()) 
+            && !enemy.isVisible()
+        ) {
             enemy.makeVisible();
             enemy.setOutsideOrder();
         }
 
-        return tilemap.ToTheExit(enemyTileData);
+        return fieldMediator.GetNextWaypointToTheExit(enemy.GetPosition());
     }
 
     private void HandleEnemyDeath(BaseEnemyController dyingEnemy)
     {
-        Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(dyingEnemy.gameObject.transform.position);
-        GameDataTile enemyTileData = tilemap.GetTileDataByPosition(enemyTilePosition);
-
-        tilemap.MarkTileFree(enemyTileData);
+        fieldMediator.MarkTileAtPointAsFree(dyingEnemy.GetPosition());
 
         if (dyingEnemy.TargetForMoving != null)
         {
-            HandleEnemyWithoutTarget(dyingEnemy.TargetForMoving);
+            MarkCurrentEnemyTileAsUntargeted(dyingEnemy);
         }
-        
     }
 
-    private void HandleEnemyWithoutTarget(Vector3 targetPoint)
+    private void MarkCurrentEnemyTileAsUntargeted(BaseEnemyController dyingEnemy)
     {
-            Vector3Int targetTilePosition = tilemap.GetTilePositionByWorldCoords(targetPoint);
-            GameDataTile targetTileData = tilemap.GetTileDataByPosition(targetTilePosition);
-
-            tilemap.UnmarkTileAsTarget(targetTileData);
+        fieldMediator.MarkTileAtPointAsUntargeted(dyingEnemy.GetPosition());
     }
 
 

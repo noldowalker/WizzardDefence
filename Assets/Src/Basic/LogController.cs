@@ -10,7 +10,7 @@ namespace Wizard.Log
 
         public enum Errors {
             BaseSceneFinderIsNull,
-            GameFieldControllerIsNull,
+            GameFieldMediatorIsNull,
             NoHitRegistratorInDummy,
             NoSpriteControllerInDummy
         };
@@ -20,10 +20,10 @@ namespace Wizard.Log
             if (mute == false) {
                 switch (reason) {
                     case Errors.BaseSceneFinderIsNull:
-                        Debug.Log("You forgot add BaseSceneFinder in RootObject");
+                        Debug.Log("You forgot add BaseSceneFinder in Root Node");
                         break;
-                    case Errors.GameFieldControllerIsNull:
-                        Debug.Log("You forgot add BaseSceneFinder in RootObject");
+                    case Errors.GameFieldMediatorIsNull:
+                        Debug.Log("You forgot add GameFieldMediator in GameField Node");
                         break;
                     case Errors.NoHitRegistratorInDummy:
                         Debug.Log("You forgot add Hit Registrator in Dummy's childen sprite");

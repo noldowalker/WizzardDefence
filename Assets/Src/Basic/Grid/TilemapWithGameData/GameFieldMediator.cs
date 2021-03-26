@@ -11,7 +11,7 @@ namespace Wizard.GameField
         private GameFieldController tilemap;
 
 
-        // тайлы (сами плиточки) которые можно принудительно присваивать ячейкам (нужно было для отладки)
+        // тайлы (сами плиточки) которые можно принудительно присваивать ячейкам (нужно для отладки)
         public Tile notSelectedTile, selectedTile, tileInGrid, occupiedTile, blockedTile, monsterGenerationTile;
 
         void Start()
@@ -28,6 +28,37 @@ namespace Wizard.GameField
             return tile.CenterWorldPlace;
         }
 
+        public bool IsPointInDoorOutsideZone(Vector3 point) => tilemap.IsDoorOutsideTile(GetTileByPosition(point));
+        public bool IsPointInInterierEnterZone(Vector3 point) => tilemap.IsHouseInterierTile(GetTileByPosition(point));
+        public bool IsPointInDoorInsideZone(Vector3 point) => tilemap.IsDoorInsideTile(GetTileByPosition(point));
+        public bool IsDoorBroken() => tilemap.IsDoorBroken();
+        public Vector3 GetNextWaypointToTheExit(Vector3 currentPoint) {
+            GameDataTile nextTile = tilemap.ToTheExit(GetTileByPosition(currentPoint));
+            if (nextTile != null) {
+                tilemap.MarkTileAsTarget(nextTile);
+                return nextTile.CenterWorldPlace;
+            }
+
+            return Vector3.negativeInfinity;
+        }
+
+        public Vector3 GetNextWaypointToTheTreasure(Vector3 currentPoint) {
+            GameDataTile currentTile = GetTileByPosition(currentPoint);
+            if (currentTile == null)
+                return Vector3.negativeInfinity;
+
+            GameDataTile nextTile = tilemap.ToTheTreasure(currentTile);
+            if (nextTile != null) {
+                tilemap.MarkTileAsTarget(nextTile);
+                return nextTile.CenterWorldPlace;
+            }
+
+            return Vector3.negativeInfinity;
+        } 
+
+        public DoorController GetDoorActor() => tilemap.door;
+        
+
         // Проходит по списку позиций, находит соответствующие им тайлы и отмечает их как занятые, 
         // далее по всем тайлам из списка прочих проставляет что они не занятые.
         public void MarkTilesOccupationByPositions(List<Vector3> occupationPoints) {
@@ -35,9 +66,11 @@ namespace Wizard.GameField
 
             foreach (Vector3 point in occupationPoints) {
                 GameDataTile currentTile = GetTileByPosition(point);
-                tilemap.MarkTileOccupied(currentTile);
-                occupiedTiles.Add(currentTile);
-                // Включи для отладки если надо будет tilemap.ChangeTileSprite(currentTile.LocalPlace, occupiedTile);
+                if (currentTile != null) {
+                    tilemap.MarkTileOccupied(currentTile);
+                    occupiedTiles.Add(currentTile);
+                    tilemap.ChangeTileSprite(currentTile.LocalPlace, occupiedTile);
+                }
             }
 
             List<GameDataTile> freeTiles = tilemap.GetOtherTiles().Except(occupiedTiles).ToList<GameDataTile>();
@@ -53,7 +86,32 @@ namespace Wizard.GameField
                 tilemap.MarkTileFree(tile);
                 tilemap.ChangeTileSprite(tile.LocalPlace, notSelectedTile);
             }
+        }
+        
+        // Ищет тайл котором принадлежит точка и если таковой найден - отмечает его как незанятый.
+        public void MarkTileAtPointAsFree(Vector3 point)
+        {
+            GameDataTile tile = GetTileByPosition(point);
+            if(tile != null)
+                tilemap.MarkTileFree(tile);
+        }
+        
+        // Ищет тайл котором принадлежит точка и если таковой найден - убирает с него флаг целевого.
+        public void MarkTileAtPointAsUntargeted(Vector3 point)
+        {
+            GameDataTile tile = GetTileByPosition(point);
+            if(tile != null)
+                tilemap.UnmarkTileAsTarget(tile);
+        }
 
+        // Гетер центра для любого свободного тайла из ведущих внутрь здания
+        public Vector3 GetCenterOfAnyFreeTileFromHouseInterierTiles()
+        {
+            GameDataTile freeTile = tilemap.GetAnyFreeTileFromHouseInterierTiles();
+            if (freeTile == null)
+                return Vector3.negativeInfinity;
+
+            return freeTile.CenterWorldPlace;
         }
 
         private GameDataTile GetTileByPosition(Vector3 position) {

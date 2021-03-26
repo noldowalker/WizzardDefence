@@ -11,6 +11,7 @@ namespace Wizard.Events
 
         private UiEventsManager ui;
         private GameFieldEventsManager gameField;
+        private ActorBasedEventsManager actorBased;
         public static EventSystem Instance { get => self; }
 
         void Awake()
@@ -18,6 +19,7 @@ namespace Wizard.Events
             self = this;
             ui = new UiEventsManager();
             gameField = new GameFieldEventsManager();
+            actorBased = new ActorBasedEventsManager();
         }
 
         
@@ -35,6 +37,14 @@ namespace Wizard.Events
         {
             if (IsAllowToSubscribe(callback.Target))
                 gameField.SubscribeEvent(type, callback);
+        }
+
+        public bool FireActorBasedEvent(EventTypes.ActorBased type, BaseEnemyController actor) => actorBased.FireEvent(type, actor);
+        public bool UnsubscribeActorBasedEvent(EventTypes.ActorBased type, Action<BaseEnemyController> callback) => actorBased.UnsubscribeEvent(type, callback);
+        public void SubscribeActorBasedEvent(EventTypes.ActorBased type, Action<BaseEnemyController> callback)
+        {
+            if (IsAllowToSubscribe(callback.Target))
+                actorBased.SubscribeEvent(type, callback);
         }
 
 

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d05ee6239de9e424085a4d0ac0e65395, type: 3}
   m_Name: Door
   m_EditorClassIdentifier: 
-  hitPoints: 4
-  maxHitPoints: 20
+  hitPoints: 5
+  maxHitPoints: 5

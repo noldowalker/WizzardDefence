@@ -16,5 +16,11 @@ namespace Wizard.Events
         {
             Click
         }
+
+        public enum ActorBased
+        {
+            Destroy,
+            MoveEnd
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using GameModels;
 using Wizard.Log;
+using Wizard.Events;
 
 public class BaseEnemyController : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class BaseEnemyController : MonoBehaviour
     private DummyModel model;
     private HitRegistrator hitRegitrator;
     private int sortingOrder = 1;
-    
+
     // Текущая цель для движения в виде глобальных координат (если есть)
     private Vector3 targetForMoving;
     private DoorController targetForAttack;
@@ -26,7 +27,7 @@ public class BaseEnemyController : MonoBehaviour
 
     // Делегаты для реакций на события с этим врагом
     public Action<BaseEnemyController> onEnemyDestroy;
-    public Action<Vector3> onMoveEnded;
+    public Action<BaseEnemyController> onMoveEnded;
     public Vector3 TargetForMoving { get => targetForMoving; }
     public int CurrentTreasures { get => model.TreasureBagCurrentTreasures; }
     public int SortingOrder { get => sortingOrder; }
@@ -35,7 +36,7 @@ public class BaseEnemyController : MonoBehaviour
     {
         hitRegitrator = GetComponentInChildren<HitRegistrator>();
         if (hitRegitrator != null) {
-            hitRegitrator.hitListeners += onGetingHit;
+            hitRegitrator.hitListeners += OnGetingHit;
         } else {
             LogController.ShowError(LogController.Errors.NoHitRegistratorInDummy);
         }
@@ -56,7 +57,8 @@ public class BaseEnemyController : MonoBehaviour
         }
     }
 
-    private void onGetingHit(GameObject hitedObject) {
+    //TODO: переписать через интерфейс и вынести вызов этого метода в новую систему событий.
+    private void OnGetingHit(GameObject hitedObject) {
         if (hitedObject != null && hitedObject.tag != "ProjectileTag") {
             return;
         }
@@ -66,7 +68,7 @@ public class BaseEnemyController : MonoBehaviour
         if (model.getCurrentHitPoints() > 0) {
             // Проигрыш анимации попадания.
             float animationTime = dummyAnimationController.PlayHitedAnimation(1f);
-            
+
             // Закрашивание красным от попадания.
             if (colorOverlaper != null)
             {
@@ -84,7 +86,7 @@ public class BaseEnemyController : MonoBehaviour
             } else {
                 shockTime += animationTime;
             }
-            
+
         } else {
             float deathTime = dummyAnimationController.PlayDeathAnimation();
             this.isShockedByHit = true;
@@ -93,7 +95,7 @@ public class BaseEnemyController : MonoBehaviour
         }
     }
 
-    public void  makeInvisible() {
+    public void makeInvisible() {
         colorOverlaper.makeInvisible(Color.white);
         model.Visible = false;
     }
@@ -120,6 +122,8 @@ public class BaseEnemyController : MonoBehaviour
         SetSortingOrder(sortingOrder);
     }
 
+    public Vector3 GetPosition() => gameObject.transform.position;
+
     private void SetSortingOrder(int order) {
         Array.ForEach (
             GetComponentsInChildren<SpriteRenderer>(),
@@ -128,6 +132,7 @@ public class BaseEnemyController : MonoBehaviour
             }
         );
     }
+
     // Корутина запускающаяся при удалении.
     private IEnumerator DeleteThis(float timeToWait)
     {
@@ -160,14 +165,10 @@ public class BaseEnemyController : MonoBehaviour
             SendEndMoveEvent();
             model.EnemyState.SetIdle();
         }
-        
     }
 
     // Выравнивает игровой объект врага по координата
-    public void AlignToCoords(Vector3 position)
-    {
-        gameObject.transform.position = new Vector3(position.x, position.y, gameObject.transform.position.z);
-    }
+    public void AlignToCoords(Vector3 position) => gameObject.transform.position = new Vector3(position.x, position.y, gameObject.transform.position.z);
 
     // Переводит цель в статус двигающейся и задает цель к которой надо идти в мировых координатах.
     public void Move(Vector3 positionTo)
@@ -176,35 +177,18 @@ public class BaseEnemyController : MonoBehaviour
         targetForMoving = new Vector3 (positionTo.x, positionTo.y, transform.position.z);
     }
 
-    public bool isMoving() {
-        return model.EnemyState.IsMoving();
-    }
+    public bool isMoving() => model.EnemyState.IsMoving();
 
-    public bool isIdle()
-    {
-        return model.EnemyState.IsIdle();
-    }
+    public bool isIdle() => model.EnemyState.IsIdle();
 
-    public bool IsReadyToTurnBack()
-    {
-        return model.EnemyState.IsReadyToTurnBack();
-    }
+    public bool IsReadyToTurnBack() =>  model.EnemyState.IsReadyToTurnBack();
         
     // Активирует всех делегатов подписанных на событие уничтожения противника.
-    private void SendDeathEvent()
-    {
-        Debug.Log("SendDeathEvent");
-        onEnemyDestroy?.Invoke(this);
-    }
+    private void SendDeathEvent() => EventSystem.Instance.FireActorBasedEvent(EventTypes.ActorBased.Destroy, this);
 
     // Активирует всех делегатов подписанных на событие окончания движения к заданной цели (как праивло тайл).
-    private void SendEndMoveEvent()
-    {
-        if (onMoveEnded != null)
-        {
-            onMoveEnded(targetForMoving);
-        }
-    }
+    private void SendEndMoveEvent() => EventSystem.Instance.FireActorBasedEvent(EventTypes.ActorBased.MoveEnd, this);
+    
 
     // ToDo: сделай через интерфейс
     public void Attack(DoorController target) {
