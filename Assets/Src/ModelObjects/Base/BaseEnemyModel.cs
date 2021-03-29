@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace GameModels
 {
-    public class BaseEnemyModel : BaseModel
+    public class BaseEnemyModel : BaseModel, IAttacker
     {
-        protected float speed = 0.05f;
+        protected float speed = 0.02f;
         protected float damage;
         protected float atackSpeed;
         protected int treasureBagCapacity = 1;

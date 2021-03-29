@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3d53074d878ce64da21557e8ff99a3d, type: 3}
   m_Name: Treasury
   m_EditorClassIdentifier: 
-  currentTreasures: 10
-  maxTreasures: 10
+  currentTreasures: 15
+  maxTreasures: 15

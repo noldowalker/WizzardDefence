@@ -18,7 +18,7 @@ public class BaseEnemyController : MonoBehaviour
 
     // Текущая цель для движения в виде глобальных координат (если есть)
     private Vector3 targetForMoving;
-    private DoorController targetForAttack;
+    private IAttackable targetForAttack;
 
     // переменные механики шока от попадания
     private bool isShockedByHit;
@@ -87,9 +87,10 @@ public class BaseEnemyController : MonoBehaviour
                 shockTime += animationTime;
             }
 
-        } else {
+        } else if (!model.EnemyState.IsDiyng()) {
             float deathTime = dummyAnimationController.PlayDeathAnimation();
             this.isShockedByHit = true;
+            model.EnemyState.SetDiyng();
             SendDeathEvent();
             StartCoroutine(DeleteThis(deathTime));
         }
@@ -191,10 +192,10 @@ public class BaseEnemyController : MonoBehaviour
     
 
     // ToDo: сделай через интерфейс
-    public void Attack(DoorController target) {
+    public void Attack(IAttackable target) {
         model.EnemyState.SetAttacking();
         targetForAttack = target;
-        target.onDestroy += onTargetDestroy;
+        target.OnDestroy += onTargetDestroy;
         StartCoroutine(Strike(model.AtackSpeed));
     }
 
@@ -222,7 +223,6 @@ public class BaseEnemyController : MonoBehaviour
         model.EnemyState.SetStealing();
         AwayFromField();
         StartCoroutine(StealProcess(stealingSpeed, target));
-        
     }
 
     // Корутина кражи

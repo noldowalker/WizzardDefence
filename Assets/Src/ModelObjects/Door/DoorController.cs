@@ -5,7 +5,7 @@ using UnityEngine;
 using GameModels;
 using Wizard.Events;
 
-public class DoorController : MonoBehaviour
+public class DoorController : MonoBehaviour, IAttackable
 {
 
     // Ссылки на используемые объекты
@@ -16,13 +16,16 @@ public class DoorController : MonoBehaviour
     private ParticleSystem[] hits;
 
     // Делегаты для реакций на события с этим врагом
-    public Action onDestroy;
+    public Action OnDestroy { get; set; }
     public Action<string> onHit;
     public DoorModel Model { get => model; set => model = value; }
+    [SerializeField]
+    private float DoorMaxStructure = 5f;
 
     void Awake()
     {
         Model = Resources.Load<DoorModel>("ScriptableObjects/PlayerSide/Door");
+        Model.MaxHitPoints = DoorMaxStructure;
     }
 
     private void Start()
@@ -42,12 +45,12 @@ public class DoorController : MonoBehaviour
         
     }
 
-    public void Hit(BaseEnemyModel attacker)
+    public void Hit(IAttacker attacker)
     {
         // Изменение данных модели в связи с попаданием.
         Model.inflictDamage(attacker.Damage);
-        //Debug.Log("Door HP: " + Model.getCurrentHitPoints());
         if (Model.CurrentHitPoints > 0)
+
         {
             ParticleSystem hit = getRandomHit();
             if (hit != null) {
@@ -88,7 +91,7 @@ public class DoorController : MonoBehaviour
     // Активирует всех делегатов подписанных на событие уничтожения противника.
     private void SendDeathEvent()
     {
-        onDestroy?.Invoke();
+        OnDestroy?.Invoke();
     }
 
     public string GetHpText() {

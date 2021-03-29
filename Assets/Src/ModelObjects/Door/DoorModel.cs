@@ -20,6 +20,9 @@ namespace GameModels
         public float MaxHitPoints
         {
             get => this.maxHitPoints;
+            set {
+                hitPoints = maxHitPoints = value;
+            }
         }
 
         public void inflictDamage(float damage)

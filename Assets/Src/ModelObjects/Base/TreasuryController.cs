@@ -9,12 +9,15 @@ public class TreasuryController : MonoBehaviour, IStealable
 {
     private static Treasury treasury;
     private InterfaceController ui;
+    [SerializeField]
+    private int maxTreasures;
 
     public Action<int> TreasuresTaken { get; set; }
     
     void Awake()
     {
         treasury = Resources.Load<Treasury>("ScriptableObjects/PlayerSide/Treasury");
+        treasury.MaxTreasures = maxTreasures;
         ui = GetComponentInParent<BaseSceneFinder>().GetInterfaceController();        
     }
 

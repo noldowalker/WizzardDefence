@@ -21,7 +21,7 @@ namespace Wizard.GameField
             door = GetComponent<DoorController>();
             if (door != null)
             {
-                door.onDestroy += roomTilemap.DestroyDoor;
+                door.OnDestroy += roomTilemap.DestroyDoor;
             }
             gameTilemap.onTransparencyChange += wallsTilemap.changeTransparensyOn;
 

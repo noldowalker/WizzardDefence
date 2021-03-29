@@ -21,6 +21,9 @@ namespace GameModels
         public int MaxTreasures
         {
             get => maxTreasures;
+            set {
+                currentTreasures = maxTreasures = value;
+            }
         }
 
         public int TryTakeTreasure(int amount)

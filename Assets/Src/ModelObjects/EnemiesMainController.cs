@@ -84,7 +84,6 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
             fieldMediator.IsPointInDoorOutsideZone(enemy.GetPosition()) 
             && !fieldMediator.IsDoorBroken()
         ) {
-            //TODO: меньше связности, сделай через IAttakable интерфейс или типа того.
             enemy.Attack(fieldMediator.GetDoorActor());
             return;
         }
@@ -93,7 +92,6 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
             fieldMediator.IsPointInInterierEnterZone(enemy.GetPosition()) 
             && !enemy.IsGoingBack()
         ) {
-            // TODO: вынести в экшен... наверное?
             enemy.FindAndStealTreasure(scene.GetTreasureController());
             return;
         }
@@ -136,17 +134,18 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
     private Vector3 ToTheExit(DummyController enemy)
     {
         if (
-            fieldMediator.IsPointInDoorInsideZone(enemy.GetPosition()) 
+            fieldMediator.IsPointInDoorInsideZone(enemy.GetPosition())
             && enemy.isVisible()
-        )
+        ) {
+            enemy.setOutsideOrder();
             enemy.makeInvisible();
+        }
 
         if (
             fieldMediator.IsPointInDoorOutsideZone(enemy.GetPosition()) 
             && !enemy.isVisible()
         ) {
             enemy.makeVisible();
-            enemy.setOutsideOrder();
         }
 
         return fieldMediator.GetNextWaypointToTheExit(enemy.GetPosition());

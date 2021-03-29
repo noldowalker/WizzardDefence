@@ -6450,7 +6450,7 @@ GameObject:
   - component: {fileID: 385982449}
   - component: {fileID: 385982450}
   m_Layer: 0
-  m_Name: Root
+  m_Name: Main
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6514,6 +6514,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f1ca4d09e3655a43bfc729f881c4d7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxTreasures: 15
 --- !u!114 &385982449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11419,7 +11420,7 @@ Camera:
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 0
-  m_HDR: 1
+  m_HDR: 0
   m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
@@ -28952,6 +28953,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82fab0de93596654c9f95595a7943024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DoorMaxStructure: 5
 --- !u!114 &1046272420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34979,7 +34981,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 61.800003, y: -23.300003}
+  m_AnchoredPosition: {x: 61.799988, y: -23.299988}
   m_SizeDelta: {x: 123.54495, y: 46.523743}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1363262949

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using Wizard.Events;
-using Wizard.GameField;
 using Wizard.GameField.PathFinding;
 using System.Linq;
 
@@ -68,7 +67,7 @@ namespace Wizard.GameField
             pathFinder = new GameFieldPathFinder(this);
             if (door != null)
             {
-                door.onDestroy += onDoorDestroyed;
+                door.OnDestroy += onDoorDestroyed;
             }
             HideTilemaps();
         }
@@ -568,14 +567,14 @@ namespace Wizard.GameField
         }
 
         // Вспомогательная функция для дебага. Рисует счет алгоритма по клеткам.
-        void OnDrawGizmos()
-        {
-            if (tilesData != null)
-                foreach (KeyValuePair<string, GameDataTile> record in tilesData)
-                {
-                    GameDataTile tile = record.Value;
-                    UnityEditor.Handles.Label(tile.CenterWorldPlace, "" + tile.LocalPlace.x + "," + tile.LocalPlace.y);
-                }
-        }
+        //void OnDrawGizmos()
+        //{
+        //    if (tilesData != null)
+        //        foreach (KeyValuePair<string, GameDataTile> record in tilesData)
+        //        {
+        //            GameDataTile tile = record.Value;
+        //            UnityEditor.Handles.Label(tile.CenterWorldPlace, "" + tile.LocalPlace.x + "," + tile.LocalPlace.y);
+        //        }
+        //}
     }
 }
