@@ -359,19 +359,29 @@ namespace Wizard.GameField
         // Гетер для любого свободного тайла из набора
         private GameDataTile GetAnyFreeTileFrom(List<GameDataTile> tileList)
         {
+            List<GameDataTile> freeTiles = new List<GameDataTile>();
             foreach (GameDataTile tile in tileList)
             {
                 if (tile.IsFree() && tile.IsNotBlocked() && tile.IsNotTarget()) {
-                    return tile;
+                    freeTiles.Add(tile);
                 }
             }
 
-            return null;
+            if(freeTiles.Count > 0)
+                return freeTiles[UnityEngine.Random.Range(0, freeTiles.Count-1)];
+            else
+                return null;
         }
 
         // Гетер для любого свободного тайла из ведущих внутрь здания
         public GameDataTile GetAnyFreeTileFromHouseInterierTiles() {
             return GetAnyFreeTileFrom(houseInterierTiles);
+        }
+
+        // Гетер для любого свободного тайла на которых генерируются монстры
+        public GameDataTile GetAnyFreeTileForSpawn()
+        {
+            return GetAnyFreeTileFrom(spawnTiles);
         }
 
         public GameDataTile ToTheTreasure(GameDataTile tileFrom) {

@@ -17,6 +17,7 @@ namespace Wizard
         private EnemiesMainController enemies;
         private GameFieldController field;
         private MageMainController mage;
+        private EnemiesGenerationSystem enemiesGenerator;
 
         void Awake()
         {
@@ -29,6 +30,8 @@ namespace Wizard
             enemies = GetComponentInChildren<EnemiesMainController>();
             field = GetComponentInChildren<GameFieldController>();
             mage = GetComponentInChildren<MageMainController>();
+            enemiesGenerator = GetComponentInChildren<EnemiesGenerationSystem>();
+            enemiesGenerator.StartEnemiesGeneration();
         }
 
         void Update()

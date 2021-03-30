@@ -30,12 +30,14 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
             return;
         }
 
+        EventSystem.Instance.SubscribeActorBasedEvent(EventTypes.ActorBased.Destroy, HandleEnemyDeath);
+        EventSystem.Instance.SubscribeActorBasedEvent(EventTypes.ActorBased.MoveEnd, MarkCurrentEnemyTileAsUntargeted);
+        EventSystem.Instance.SubscribeActorBasedEvent(EventTypes.ActorBased.Created, OnNewEnemyCreation);
+
+        // На случай если на сцене на старте есть враги.
         List<Vector3> occupationPoints = new List<Vector3>();
         foreach (DummyController enemy in GetComponentsInChildren<DummyController>())
         {
-            EventSystem.Instance.SubscribeActorBasedEvent(EventTypes.ActorBased.Destroy, HandleEnemyDeath);
-            EventSystem.Instance.SubscribeActorBasedEvent(EventTypes.ActorBased.MoveEnd, MarkCurrentEnemyTileAsUntargeted);
-
             Vector3 enemyPosition = enemy.GetPosition();
             Vector3 newPosition = fieldMediator.GetTileCenterByPosition(enemy.GetPosition());
             enemy.AlignToCoords(newPosition);
@@ -51,11 +53,19 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
     public void Unsubscribe() {
         EventSystem.Instance.UnsubscribeActorBasedEvent(EventTypes.ActorBased.Destroy, HandleEnemyDeath);
         EventSystem.Instance.UnsubscribeActorBasedEvent(EventTypes.ActorBased.MoveEnd, MarkCurrentEnemyTileAsUntargeted);
+        EventSystem.Instance.UnsubscribeActorBasedEvent(EventTypes.ActorBased.Created, OnNewEnemyCreation);
     }
 
     void OnDestroy()
     {
         Unsubscribe();
+    }
+
+    public void OnNewEnemyCreation(BaseEnemyController newEnemy) {
+        newEnemy.gameObject.transform.SetParent(gameObject.transform);
+        Vector3 newPosition = fieldMediator.GetCenterOfAnyFreeTileForSpawn();
+        newEnemy.setOutsideOrder();
+        newEnemy.AlignToCoords(newPosition);
     }
 
     // Действия которые запускаются каждый кадр
@@ -159,6 +169,8 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
         {
             MarkCurrentEnemyTileAsUntargeted(dyingEnemy);
         }
+
+
     }
 
     private void MarkCurrentEnemyTileAsUntargeted(BaseEnemyController dyingEnemy)

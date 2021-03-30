@@ -19,6 +19,7 @@ namespace Wizard.Events
 
         public enum ActorBased
         {
+            Created,
             Destroy,
             MoveEnd
         }

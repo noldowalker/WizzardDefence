@@ -114,6 +114,16 @@ namespace Wizard.GameField
             return freeTile.CenterWorldPlace;
         }
 
+        // Гетер центра для любого свободного тайла из ведущих внутрь здания
+        public Vector3 GetCenterOfAnyFreeTileForSpawn()
+        {
+            GameDataTile freeTile = tilemap.GetAnyFreeTileForSpawn();
+            if (freeTile == null)
+                return Vector3.negativeInfinity;
+
+            return freeTile.CenterWorldPlace;
+        }
+
         private GameDataTile GetTileByPosition(Vector3 position) {
             Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(position);
             return tilemap.GetTileDataByPosition(enemyTilePosition);
