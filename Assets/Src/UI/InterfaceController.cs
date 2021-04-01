@@ -23,7 +23,6 @@ public class InterfaceController : MonoBehaviour
     }
 
     public void SetTreasureText(int amount) {
-        Debug.Log("amount = " + amount);
         if (TreasureText == null)
             TreasureText = GetComponentInChildren<TreasureTextController>();
 

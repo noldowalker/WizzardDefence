@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefub: {fileID: 7149944803202881550, guid: e34ce037a7c12454dbdc02e0798cf71f,
     type: 3}
-  amount: 5
+  amount: 50

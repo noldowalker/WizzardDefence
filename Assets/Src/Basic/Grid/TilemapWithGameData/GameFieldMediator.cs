@@ -10,10 +10,7 @@ namespace Wizard.GameField
     {
         private GameFieldController tilemap;
 
-
-        // тайлы (сами плиточки) которые можно принудительно присваивать ячейкам (нужно для отладки)
-        public Tile notSelectedTile, selectedTile, tileInGrid, occupiedTile, blockedTile, monsterGenerationTile;
-
+       
         void Start()
         {
             tilemap = GetComponent<GameFieldController>();
@@ -55,8 +52,6 @@ namespace Wizard.GameField
 
             return Vector3.negativeInfinity;
         } 
-
-        public DoorController GetDoorActor() => tilemap.door;
         
 
         // Проходит по списку позиций, находит соответствующие им тайлы и отмечает их как занятые, 
@@ -69,7 +64,6 @@ namespace Wizard.GameField
                 if (currentTile != null) {
                     tilemap.MarkTileOccupied(currentTile);
                     occupiedTiles.Add(currentTile);
-                    tilemap.ChangeTileSprite(currentTile.LocalPlace, occupiedTile);
                 }
             }
 
@@ -84,7 +78,6 @@ namespace Wizard.GameField
             foreach (GameDataTile tile in freeTiles)
             {
                 tilemap.MarkTileFree(tile);
-                tilemap.ChangeTileSprite(tile.LocalPlace, notSelectedTile);
             }
         }
         
@@ -128,5 +121,7 @@ namespace Wizard.GameField
             Vector3Int enemyTilePosition = tilemap.GetTilePositionByWorldCoords(position);
             return tilemap.GetTileDataByPosition(enemyTilePosition);
         }
+
+        public DoorController GetDoorActor() => tilemap.door;
     }
 }

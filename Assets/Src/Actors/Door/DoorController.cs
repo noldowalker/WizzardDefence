@@ -101,7 +101,6 @@ public class DoorController : MonoBehaviour, IAttackable
     // Активирует всех делегатов подписанных на событие удара в дверь
     private void SendHitEvent()
     {
-        Debug.Log("Hit!");
         EventSystem.Instance.FireUiEvent(EventTypes.UI.DoorHPChanged, GetHpText());
     }
 }

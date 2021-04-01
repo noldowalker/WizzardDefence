@@ -9,7 +9,6 @@ public class TreasureTextController : BaseTextController, ISubscribable
     private void Start()
     {
         this.ChangeTextOn(GetComponentInParent<BaseSceneFinder>().GetTreasureController().GetTreasureMessage());
-        Debug.Log("Subscribe");
         EventSystem.Instance.SubscribeUiEvent(EventTypes.UI.TreasuresAmountChanged, this.ChangeTextOn);
     }
 

@@ -10,7 +10,7 @@ public class EnemiesGenerationSystem : MonoBehaviour
 
     private int totalEnemies = 0;
 
-    void Start()
+    void Awake()
     {
         if (enemiesPool == null)
             enemiesPool = new List<EnemyContainerForGeneration>();
@@ -22,16 +22,16 @@ public class EnemiesGenerationSystem : MonoBehaviour
     }
 
     public void StartEnemiesGeneration() {
-        Debug.Log("StartGeneration");
         StartCoroutine(EnemiesGeneration());
     }
 
-    IEnumerator EnemiesGeneration() {    
+    IEnumerator EnemiesGeneration() {
         while (totalEnemies > 0)
         {
             yield return new WaitForSeconds(GetRandomGenerationTime());
 
             GameObject newEnemy = Instantiate(enemiesPool[0].Prefub);
+            newEnemy.name = newEnemy.name + " #" + totalEnemies;
 
             BaseEnemyController enemyEntity = newEnemy.GetComponent<BaseEnemyController>();
             if (enemyEntity != null) {

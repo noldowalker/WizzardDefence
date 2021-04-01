@@ -40,11 +40,14 @@ namespace Wizard.GameField
         // место последнего клика (не используется нуно было для отладки)
         private Vector3Int lastSelectedTilePos;
         // тайлы (сами плиточки) которые можно принудительно присваивать ячейкам (нужно было для отладки)
-        public Tile notSelectedTile, selectedTile, tileInGrid, occupiedTile, blockedTile, monsterGenerationTile;
+        public Tile notSelectedTile, selectedTile, tileInGrid, occupiedTile, blockedTile, monsterGenerationTile, targetTile, errorTile;
         // Объект Двери
         public DoorController door;
         // Флаг занята ли хоть одна из клеток которые влияют на прозрачность
         private bool transparency = false;
+
+        [SerializeField]
+        private bool hideGameField = true;
 
         // Запускается на старте
         void Awake()
@@ -98,6 +101,9 @@ namespace Wizard.GameField
         // Скрывает спрайты тайлов, оставляя только их коллайдеры.
         private void HideTilemaps()
         {
+            if (!hideGameField)
+                return;
+
             GetComponent<TilemapRenderer>().enabled = false;
         }
 
@@ -276,30 +282,51 @@ namespace Wizard.GameField
         public void MarkTileOccupied(GameDataTile tile)
         {
             tilesData[tile.Name].Occupied = true;
+            RepaintTileByItStatus(tile);
         }
 
         // Помечает конкретный тайл как свободный.
         public void MarkTileFree(GameDataTile tile)
         {
             tilesData[tile.Name].Occupied = false;
+            RepaintTileByItStatus(tile);
         }
 
         // Помечает конкретный тайл как цель движения.
         public void MarkTileAsTarget(GameDataTile tile)
         {
             tilesData[tile.Name].Target = true;
+            RepaintTileByItStatus(tile);
         }
 
         // Убиреат марку цели движения.
         public void UnmarkTileAsTarget(GameDataTile tile)
         {
             tilesData[tile.Name].Target = false;
+            RepaintTileByItStatus(tile);
         }
 
-        // Помечает конкретный тайл как занятый.
-        public void DrawTileVisited(GameDataTile tile)
-        {
-            ChangeTileSprite(tile.LocalPlace, selectedTile);
+        private void RepaintTileByItStatus(GameDataTile tile) {
+            if (tile.IsBlocked() == true)
+                return;
+
+            if (tile.IsFree() && tile.IsNotTarget())
+            {
+                ChangeTileSprite(tile.LocalPlace, notSelectedTile);
+            }
+            else if (tile.IsOccupied() && tile.IsTarget())
+            { // Это косяк
+                ChangeTileSprite(tile.LocalPlace, errorTile);
+            }
+            else if (tile.IsOccupied())
+            {
+                ChangeTileSprite(tile.LocalPlace, occupiedTile);
+            }
+            else if (tile.IsTarget()) {
+                ChangeTileSprite(tile.LocalPlace, targetTile);
+            }
+
+            
         }
 
         // Функция которая сбрасывает счет по тайлам.
@@ -534,7 +561,6 @@ namespace Wizard.GameField
             foreach (GameDataTile tile in freeTiles)
             {
                 this.MarkTileFree(tile);
-                this.ChangeTileSprite(tile.LocalPlace, notSelectedTile);
             }
 
         }
@@ -548,7 +574,7 @@ namespace Wizard.GameField
                 if (tile.IsFree())
                 {
                     this.MarkTileOccupied(tile);
-                    this.ChangeTileSprite(tile.LocalPlace, occupiedTile);
+                    
                 }
             }
 
@@ -577,14 +603,14 @@ namespace Wizard.GameField
         }
 
         // Вспомогательная функция для дебага. Рисует счет алгоритма по клеткам.
-        //void OnDrawGizmos()
-        //{
-        //    if (tilesData != null)
-        //        foreach (KeyValuePair<string, GameDataTile> record in tilesData)
-        //        {
-        //            GameDataTile tile = record.Value;
-        //            UnityEditor.Handles.Label(tile.CenterWorldPlace, "" + tile.LocalPlace.x + "," + tile.LocalPlace.y);
-        //        }
-        //}
+        /*void OnDrawGizmos()
+        {
+            if (tilesData != null)
+                foreach (KeyValuePair<string, GameDataTile> record in tilesData)
+                {
+                    GameDataTile tile = record.Value;
+                    UnityEditor.Handles.Label(tile.CenterWorldPlace, "" + tile.LocalPlace.x + "," + tile.LocalPlace.y);
+                }
+        }*/
     }
 }

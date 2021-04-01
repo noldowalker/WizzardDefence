@@ -29,7 +29,6 @@ public class ItemsController : MonoBehaviour, ISubscribable
     }
 
     public void CreateItem(BaseEnemyController dyingEnemy) {
-        Debug.Log("Creating Items!");
         for (int i = 0; i < dyingEnemy.CurrentTreasures; i++) {
             treasury.ReturnTreasure(1);
             Treasure currentGem = Instantiate(

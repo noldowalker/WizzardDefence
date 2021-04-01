@@ -165,6 +165,7 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
     {
         fieldMediator.MarkTileAtPointAsFree(dyingEnemy.GetPosition());
 
+        fieldMediator.GetTileCenterByPosition(dyingEnemy.TargetForMoving);
         if (dyingEnemy.TargetForMoving != null)
         {
             MarkCurrentEnemyTileAsUntargeted(dyingEnemy);
@@ -175,7 +176,7 @@ public class EnemiesMainController : MonoBehaviour, ISubscribable
 
     private void MarkCurrentEnemyTileAsUntargeted(BaseEnemyController dyingEnemy)
     {
-        fieldMediator.MarkTileAtPointAsUntargeted(dyingEnemy.GetPosition());
+        fieldMediator.MarkTileAtPointAsUntargeted(dyingEnemy.TargetForMoving);
     }
 
 
